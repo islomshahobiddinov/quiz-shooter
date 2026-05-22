@@ -1,0 +1,230 @@
+[
+  {
+    "id": "google-docs",
+    "title": "Google Docs",
+    "description": "Matn hujjatlari, formatlash va ulashish bo'yicha savollar.",
+    "questions": [
+      {
+        "q": "Google Docs asosan nima uchun ishlatiladi?",
+        "a": ["Video montaj", "Matn hujjat yozish", "Rasm chizish", "Kod kompilyatsiya"],
+        "c": 1
+      },
+      {
+        "q": "Hujjatni boshqalar bilan ulashish tugmasi qaysi?",
+        "a": ["Share", "Delete", "Print", "Zoom"],
+        "c": 0
+      },
+      {
+        "q": "Bold buyrug'i matnga nima qiladi?",
+        "a": ["Rang beradi", "Qalin qiladi", "O'chiradi", "Havola qiladi"],
+        "c": 1
+      },
+      {
+        "q": "Google Docs fayllari qayerda saqlanadi?",
+        "a": ["Google Drive", "Canva", "YouTube", "Chrome Store"],
+        "c": 0
+      },
+      {
+        "q": "Comment funksiyasi nima uchun kerak?",
+        "a": ["Fikr qoldirish", "Sahifa o'chirish", "Matn tarjima qilish", "Jadval yaratish"],
+        "c": 0
+      },
+      {
+        "q": "Docs ichida jadval qo'shish menyusi qaysi?",
+        "a": ["Insert", "Format", "Tools", "Help"],
+        "c": 0
+      },
+      {
+        "q": "Matnni markazga tekislash nima deyiladi?",
+        "a": ["Align center", "Line spacing", "Spell check", "Word count"],
+        "c": 0
+      },
+      {
+        "q": "Docs real vaqtda birga ishlashni qo'llaydimi?",
+        "a": ["Ha", "Yo'q", "Faqat PDFda", "Faqat offline"],
+        "c": 0
+      },
+      {
+        "q": "Word count nimani ko'rsatadi?",
+        "a": ["So'zlar soni", "Rasmlar soni", "Slaydlar soni", "Jadval rangi"],
+        "c": 0
+      },
+      {
+        "q": "Docs hujjatini PDF qilib olish uchun nima qilinadi?",
+        "a": ["Download", "Rename", "Mute", "Refresh"],
+        "c": 0
+      }
+    ]
+  },
+  {
+    "id": "google-sheets",
+    "title": "Google Sheets",
+    "description": "Jadvallar, formulalar, kataklar va diagrammalar bo'yicha savollar.",
+    "questions": [
+      {
+        "q": "Google Sheets asosan nima uchun ishlatiladi?",
+        "a": ["Elektron jadval", "Video ko'rish", "Logo chizish", "Matn diktovka"],
+        "c": 0
+      },
+      {
+        "q": "Formula odatda qaysi belgi bilan boshlanadi?",
+        "a": ["=", "#", "@", "$"],
+        "c": 0
+      },
+      {
+        "q": "SUM funksiyasi nima qiladi?",
+        "a": ["Yig'indi hisoblaydi", "Matnni qalin qiladi", "Rasm qo'shadi", "Faylni yopadi"],
+        "c": 0
+      },
+      {
+        "q": "A1 nimani bildiradi?",
+        "a": ["Katak manzili", "Fayl nomi", "Diagramma turi", "Shrift nomi"],
+        "c": 0
+      },
+      {
+        "q": "Qatorlar odatda nima bilan belgilanadi?",
+        "a": ["Raqamlar", "Harflar", "Ranglar", "Ikonkalar"],
+        "c": 0
+      },
+      {
+        "q": "Ustunlar odatda nima bilan belgilanadi?",
+        "a": ["Harflar", "Raqamlar", "Emoji", "Sana"],
+        "c": 0
+      },
+      {
+        "q": "Chart nima uchun kerak?",
+        "a": ["Ma'lumotni grafik ko'rsatish", "Faylni o'chirish", "Audio yozish", "Parol qo'yish"],
+        "c": 0
+      },
+      {
+        "q": "Filter vazifasi nima?",
+        "a": ["Ma'lumot saralash/ajratish", "Slayd yaratish", "Video kesish", "Matnni ovoz qilish"],
+        "c": 0
+      },
+      {
+        "q": "Freeze row nimani qiladi?",
+        "a": ["Qatorni joyida ushlab turadi", "Katakni yashiradi", "Formulani o'chiradi", "Faylni yuklaydi"],
+        "c": 0
+      },
+      {
+        "q": "Sheets hamkorlikda ishlashga mosmi?",
+        "a": ["Ha", "Yo'q", "Faqat rasmda", "Faqat audio bilan"],
+        "c": 0
+      }
+    ]
+  },
+  {
+    "id": "canva",
+    "title": "Canva",
+    "description": "Dizayn, shablonlar, elementlar va eksport bo'yicha savollar.",
+    "questions": [
+      {
+        "q": "Canva asosan nima uchun ishlatiladi?",
+        "a": ["Dizayn yaratish", "Kod yozish", "Jadval hisoblash", "Matn tarjima"],
+        "c": 0
+      },
+      {
+        "q": "Template nimani bildiradi?",
+        "a": ["Tayyor shablon", "Parol", "Audio trek", "Excel formula"],
+        "c": 0
+      },
+      {
+        "q": "Canvada rasm, ikonka va shakllar qaysi bo'limda?",
+        "a": ["Elements", "Trash", "Settings", "History"],
+        "c": 0
+      },
+      {
+        "q": "Matn qo'shish uchun qaysi bo'lim ishlatiladi?",
+        "a": ["Text", "Audio", "Apps", "Uploads"],
+        "c": 0
+      },
+      {
+        "q": "Canva dizaynini PNG qilib olish uchun nima qilinadi?",
+        "a": ["Download", "Delete", "Lock", "Undo"],
+        "c": 0
+      },
+      {
+        "q": "Brand Kit nimaga yordam beradi?",
+        "a": ["Brend rang/shriftlarini saqlash", "Jadval tuzish", "Kod ishga tushirish", "Email yuborish"],
+        "c": 0
+      },
+      {
+        "q": "Canvada qatlamni joyidan qimirlamas qilish nima deyiladi?",
+        "a": ["Lock", "Crop", "Filter", "Share"],
+        "c": 0
+      },
+      {
+        "q": "Upload bo'limi nima uchun kerak?",
+        "a": ["O'z faylingni yuklash", "Matnni tarjima qilish", "Formula yozish", "Hujjat chop etish"],
+        "c": 0
+      },
+      {
+        "q": "Canvada slayd ko'rinishidagi dizayn nima?",
+        "a": ["Presentation", "Spreadsheet", "Database", "Document scan"],
+        "c": 0
+      },
+      {
+        "q": "Share tugmasi nima uchun ishlatiladi?",
+        "a": ["Dizaynni ulashish", "Rang tanlash", "Qator muzlatish", "Formulani hisoblash"],
+        "c": 0
+      }
+    ]
+  },
+  {
+    "id": "swiper",
+    "title": "Swiper",
+    "description": "Slider, carousel, navigation va pagination bo'yicha savollar.",
+    "questions": [
+      {
+        "q": "Swiper asosan nima uchun ishlatiladi?",
+        "a": ["Slider yaratish", "Server ochish", "Ma'lumot saqlash", "Rasm tahrirlash"],
+        "c": 0
+      },
+      {
+        "q": "Swiper'da bitta ko'rinadigan element nima deyiladi?",
+        "a": ["Slide", "Route", "Table", "Schema"],
+        "c": 0
+      },
+      {
+        "q": "Pagination odatda nimani ko'rsatadi?",
+        "a": ["Slide nuqtalari", "Parol oynasi", "Audio balandligi", "Kod xatosi"],
+        "c": 0
+      },
+      {
+        "q": "Navigation uchun odatda nimalar ishlatiladi?",
+        "a": ["Oldinga/orqaga tugmalar", "Login forma", "Jadval ustuni", "Matn rangi"],
+        "c": 0
+      },
+      {
+        "q": "Autoplay nima qiladi?",
+        "a": ["Slaydlarni avtomatik almashtiradi", "Faylni yuklaydi", "Matnni qalin qiladi", "Serverni to'xtatadi"],
+        "c": 0
+      },
+      {
+        "q": "Loop sozlamasi nima uchun kerak?",
+        "a": ["Slaydlarni aylana davom ettirish", "Rasmni kesish", "Shrift tanlash", "Jadval filtrlash"],
+        "c": 0
+      },
+      {
+        "q": "slidesPerView nimani belgilaydi?",
+        "a": ["Bir vaqtda ko'rinadigan slaydlar soni", "Slayd balandligi", "Audio turi", "Fayl nomi"],
+        "c": 0
+      },
+      {
+        "q": "spaceBetween nimani sozlaydi?",
+        "a": ["Slaydlar orasidagi masofa", "Matn o'lchami", "Sahifa sarlavhasi", "URL manzili"],
+        "c": 0
+      },
+      {
+        "q": "Swiper Reactda odatda qaysi komponentlar ishlatiladi?",
+        "a": ["Swiper va SwiperSlide", "Table va Row", "Form va Input", "Canvas va Path"],
+        "c": 0
+      },
+      {
+        "q": "Breakpoint sozlamasi nima uchun kerak?",
+        "a": ["Turli ekranlarga moslashish", "Parol saqlash", "Faylni o'chirish", "Matnni tarjima qilish"],
+        "c": 0
+      }
+    ]
+  }
+]

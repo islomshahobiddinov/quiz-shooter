@@ -1,0 +1,247 @@
+.quiz-shooter {
+  min-height: 100svh;
+  background: #0a0e1a;
+  color: #7fffd4;
+  cursor: auto;
+  font-family: 'Courier New', monospace;
+  overflow: hidden;
+}
+
+.quiz-shooter.is-playing {
+  cursor: none;
+}
+
+.game-canvas {
+  display: block;
+  height: 100svh;
+  width: 100vw;
+}
+
+.hud {
+  left: 0;
+  pointer-events: none;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 10;
+}
+
+.hud.is-hidden {
+  display: none;
+}
+
+.score-bar {
+  align-items: center;
+  color: #7fffd4;
+  display: flex;
+  font-size: 13px;
+  justify-content: space-between;
+  letter-spacing: 1px;
+  padding: 10px 20px;
+}
+
+.sound-toggle {
+  background: rgba(127, 255, 212, 0.08);
+  border: 1px solid rgba(127, 255, 212, 0.65);
+  color: #7fffd4;
+  cursor: pointer;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  letter-spacing: 1px;
+  padding: 5px 10px;
+  pointer-events: all;
+}
+
+.topic-back {
+  background: transparent;
+  border: 1px solid rgba(127, 255, 212, 0.65);
+  color: #7fffd4;
+  cursor: pointer;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  letter-spacing: 1px;
+  padding: 5px 10px;
+  pointer-events: all;
+}
+
+.topic-back:hover {
+  background: rgba(127, 255, 212, 0.16);
+}
+
+.sound-toggle:hover {
+  background: rgba(127, 255, 212, 0.16);
+}
+
+.question-box {
+  padding: 4px 20px;
+  text-align: center;
+}
+
+.question-text {
+  color: #fff;
+  font-size: 15px;
+  font-weight: bold;
+  text-shadow: 0 0 10px #00fff7;
+}
+
+.lives {
+  color: #ff4b68;
+  font-size: 15px;
+}
+
+.crosshair {
+  height: 30px;
+  pointer-events: none;
+  position: fixed;
+  transform: translate(-50%, -50%);
+  width: 30px;
+  z-index: 15;
+}
+
+.quiz-shooter:not(.is-playing) .crosshair {
+  display: none;
+}
+
+.topic-menu {
+  align-items: center;
+  background: rgba(10, 14, 26, 0.94);
+  color: #7fffd4;
+  display: none;
+  inset: 0;
+  justify-content: center;
+  padding: 24px;
+  position: fixed;
+  z-index: 18;
+}
+
+.topic-menu.is-visible {
+  display: flex;
+}
+
+.topic-menu-inner {
+  max-width: 980px;
+  width: min(100%, 980px);
+}
+
+.topic-menu h1 {
+  color: #fff;
+  font-family: 'Courier New', monospace;
+  font-size: clamp(28px, 5vw, 48px);
+  margin: 0 0 28px;
+  text-align: center;
+  text-shadow: 0 0 18px #00fff7;
+}
+
+.topic-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.topic-card {
+  background: rgba(85, 153, 255, 0.12);
+  border: 1.5px solid #5599ff;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Courier New', monospace;
+  min-height: 190px;
+  padding: 20px;
+  text-align: left;
+}
+
+.topic-card:hover {
+  background: rgba(127, 255, 212, 0.12);
+  border-color: #7fffd4;
+  box-shadow: 0 0 22px rgba(127, 255, 212, 0.16);
+}
+
+.topic-card span {
+  color: #7fffd4;
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 12px;
+}
+
+.topic-card small {
+  color: #c7d7ff;
+  flex: 1;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.topic-card strong {
+  color: #ffe066;
+  font-size: 13px;
+  margin-top: 18px;
+}
+
+@media (max-width: 760px) {
+  .score-bar {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .topic-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .topic-card {
+    min-height: 140px;
+  }
+}
+
+.overlay {
+  align-items: center;
+  background: rgba(0, 0, 0, 0.88);
+  color: #7fffd4;
+  cursor: auto;
+  display: none;
+  flex-direction: column;
+  font-family: 'Courier New', monospace;
+  inset: 0;
+  justify-content: center;
+  position: fixed;
+  z-index: 20;
+}
+
+.overlay.is-visible {
+  display: flex;
+}
+
+.overlay h2 {
+  color: #7fffd4;
+  font-family: inherit;
+  font-size: 26px;
+  font-weight: bold;
+  margin: 0 0 10px;
+  text-shadow: 0 0 20px #00fff7;
+}
+
+.overlay p {
+  color: #aaa;
+  font-size: 15px;
+  margin: 0 0 22px;
+}
+
+.overlay-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.overlay button {
+  background: transparent;
+  border: 1.5px solid #7fffd4;
+  color: #7fffd4;
+  cursor: pointer;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  letter-spacing: 2px;
+  padding: 10px 32px;
+  pointer-events: all;
+}
+
+.overlay button:hover {
+  background: rgba(127, 255, 212, 0.12);
+}
