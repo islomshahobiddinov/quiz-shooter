@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import quizzes from './quizzes.json'
+import { useAuth } from './lib/useAuth'
 import './App.css'
 
 type QuizQuestion = {
@@ -37,6 +38,13 @@ function App() {
   const questionsRef = useRef<QuizQuestion[]>(firstTopic.questions)
   const [selectedTopic, setSelectedTopic] = useState<QuizTopic | null>(null)
   const [soundEnabled, setSoundEnabled] = useState(true)
+  const { session, loading: authLoading, signInWithGoogle, signOut } = useAuth()
+  const user = session?.user ?? null
+  const userLabel =
+    (user?.user_metadata?.full_name as string | undefined) ||
+    (user?.user_metadata?.name as string | undefined) ||
+    user?.email ||
+    ''
   const [hud, setHud] = useState<HudState>({
     question: '',
     questionNumber: 1,
@@ -771,6 +779,11 @@ function App() {
           >
             OVOZ: {soundEnabled ? 'ON' : 'OFF'}
           </button>
+          {user && (
+            <span className="user-chip" title={user.email ?? ''}>
+              {userLabel}
+            </span>
+          )}
         </div>
         <div className="question-box">
           <div className="question-text">{hud.question}</div>
@@ -790,6 +803,24 @@ function App() {
 
       <section className={`topic-menu${selectedTopic ? '' : ' is-visible'}`}>
         <div className="topic-menu-inner">
+          <div className="auth-bar">
+            {authLoading ? (
+              <span className="auth-status">…</span>
+            ) : user ? (
+              <>
+                <span className="auth-status">
+                  Salom, <strong>{userLabel}</strong>
+                </span>
+                <button type="button" className="auth-button" onClick={signOut}>
+                  CHIQISH
+                </button>
+              </>
+            ) : (
+              <button type="button" className="auth-button auth-button--primary" onClick={signInWithGoogle}>
+                GOOGLE BILAN KIRISH
+              </button>
+            )}
+          </div>
           <h1>Mavzuni tanlang</h1>
           <div className="topic-grid">
             {topics.map((topic) => (

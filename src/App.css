@@ -123,6 +123,58 @@
   width: min(100%, 980px);
 }
 
+.auth-bar {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-bottom: 18px;
+}
+
+.auth-status {
+  color: #c7d7ff;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  letter-spacing: 1px;
+}
+
+.auth-status strong {
+  color: #7fffd4;
+}
+
+.auth-button {
+  background: transparent;
+  border: 1.5px solid #7fffd4;
+  color: #7fffd4;
+  cursor: pointer;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  padding: 8px 16px;
+}
+
+.auth-button:hover {
+  background: rgba(127, 255, 212, 0.12);
+}
+
+.auth-button--primary {
+  background: rgba(127, 255, 212, 0.1);
+}
+
+.user-chip {
+  background: rgba(127, 255, 212, 0.1);
+  border: 1px solid rgba(127, 255, 212, 0.5);
+  color: #7fffd4;
+  font-size: 12px;
+  letter-spacing: 1px;
+  max-width: 180px;
+  overflow: hidden;
+  padding: 4px 10px;
+  pointer-events: all;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .topic-menu h1 {
   color: #fff;
   font-family: 'Courier New', monospace;
