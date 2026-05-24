@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import type { UserQuiz } from '../lib/quizzesApi'
+import type { QuizTopic } from '../lib/quizzesApi'
 import { createLobby } from '../lib/lobbiesApi'
 import type { Lobby, LobbyPlayer } from '../lib/lobbiesApi'
 
 type LobbyCreateDialogProps = {
   hostId: string
   defaultUsername: string
-  quiz: UserQuiz
+  quiz: QuizTopic
   onCreated: (result: { lobby: Lobby; player: LobbyPlayer }) => void
   onCancel: () => void
 }

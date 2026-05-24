@@ -49,7 +49,7 @@ function App() {
   const [myQuizzesRefreshKey, setMyQuizzesRefreshKey] = useState(0)
 
   // Lobby state
-  const [createLobbyQuiz, setCreateLobbyQuiz] = useState<UserQuiz | null>(null)
+  const [createLobbyQuiz, setCreateLobbyQuiz] = useState<QuizTopic | null>(null)
   const [joinDialogOpen, setJoinDialogOpen] = useState(false)
   const [activeLobby, setActiveLobby] = useState<{ lobby: Lobby; player: LobbyPlayer } | null>(null)
 
@@ -241,11 +241,27 @@ function App() {
               <h1>Mavzuni tanlang</h1>
               <div className="topic-grid">
                 {topics.map((topic) => (
-                  <button key={topic.id} type="button" className="topic-card" onClick={() => startTopic(topic)}>
-                    <span>{topic.title}</span>
-                    <small>{topic.description}</small>
-                    <strong>{topic.questions.length} ta savol</strong>
-                  </button>
+                  <div key={topic.id} className="topic-card topic-card--public">
+                    <button
+                      type="button"
+                      className="topic-card-main"
+                      onClick={() => startTopic(topic)}
+                    >
+                      <span>{topic.title}</span>
+                      <small>{topic.description}</small>
+                      <strong>{topic.questions.length} ta savol</strong>
+                    </button>
+                    {user && (
+                      <button
+                        type="button"
+                        className="topic-card-lobby"
+                        onClick={() => setCreateLobbyQuiz(topic)}
+                        title="Bu test bo'yicha lobby ochish"
+                      >
+                        + LOBBY
+                      </button>
+                    )}
+                  </div>
                 ))}
               </div>
             </>

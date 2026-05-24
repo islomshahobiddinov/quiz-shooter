@@ -447,6 +447,47 @@
   position: relative;
 }
 
+.topic-card--public {
+  cursor: default;
+  padding: 0;
+  position: relative;
+}
+
+.topic-card-main {
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  font: inherit;
+  padding: 20px;
+  text-align: left;
+}
+
+.topic-card-main:hover {
+  background: rgba(127, 255, 212, 0.06);
+}
+
+.topic-card-lobby {
+  background: rgba(127, 255, 212, 0.12);
+  border: 1px solid rgba(127, 255, 212, 0.55);
+  color: #7fffd4;
+  cursor: pointer;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+  padding: 4px 10px;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+}
+
+.topic-card-lobby:hover {
+  background: rgba(127, 255, 212, 0.22);
+}
+
 .quiz-card-actions {
   display: flex;
   flex-wrap: wrap;

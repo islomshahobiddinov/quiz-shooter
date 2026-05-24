@@ -1,27 +1,23 @@
 -- Quiz Shooter — Lobby (multiplayer) schema
 -- Run AFTER schema.sql, in: Supabase Dashboard → SQL Editor → New query → Run
 
--- Short readable lobby code generator (6 chars, no confusing 0/O/I/1)
+-- Short numeric lobby code generator (6 digits, 100000..999999)
 create or replace function public.generate_lobby_code()
 returns text
 language plpgsql
 as $$
-declare
-  alphabet text := 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  code text := '';
-  i int;
 begin
-  for i in 1..6 loop
-    code := code || substr(alphabet, 1 + floor(random() * length(alphabet))::int, 1);
-  end loop;
-  return code;
+  return lpad((100000 + floor(random() * 900000)::int)::text, 6, '0');
 end;
 $$;
 
 create table if not exists public.lobbies (
   id uuid primary key default gen_random_uuid(),
   code text unique not null default public.generate_lobby_code(),
-  quiz_id uuid not null references public.quizzes(id) on delete cascade,
+  -- quiz_id can be a UUID (user quiz) or a slug like "google-docs" (built-in topic).
+  -- Stored as text without FK so any source can host a lobby; the questions are
+  -- snapshotted in quiz_questions below so the lobby works even if the source quiz is deleted.
+  quiz_id text,
   host_id uuid not null references auth.users(id) on delete cascade,
   -- Snapshot the quiz at lobby creation so edits to the source quiz
   -- don't affect an in-progress lobby and so anonymous players can read questions.

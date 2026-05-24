@@ -17,11 +17,11 @@ export function LobbyJoinDialog({ defaultUsername = '', onJoined, onCancel }: Lo
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault()
-    const cleanedCode = code.trim().toUpperCase()
+    const cleanedCode = code.trim()
     const cleanedName = username.trim()
 
-    if (!cleanedCode) {
-      setError('Lobby kodini kiriting')
+    if (!/^\d{6}$/.test(cleanedCode)) {
+      setError("Lobby kodi 6 ta raqamdan iborat bo'lishi kerak")
       return
     }
 
@@ -71,11 +71,12 @@ export function LobbyJoinDialog({ defaultUsername = '', onJoined, onCancel }: Lo
           <span>Lobby kod</span>
           <input
             type="text"
+            inputMode="numeric"
+            pattern="\d{6}"
             value={code}
-            onChange={(event) => setCode(event.target.value.toUpperCase())}
-            maxLength={8}
-            placeholder="ABCD12"
-            autoCapitalize="characters"
+            onChange={(event) => setCode(event.target.value.replace(/\D/g, '').slice(0, 6))}
+            maxLength={6}
+            placeholder="123456"
             autoFocus
           />
         </label>

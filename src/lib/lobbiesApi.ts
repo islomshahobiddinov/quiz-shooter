@@ -1,5 +1,5 @@
 import { supabase } from './supabase'
-import type { QuizQuestion, UserQuiz } from './quizzesApi'
+import type { QuizQuestion, QuizTopic } from './quizzesApi'
 
 export type LobbyStatus = 'waiting' | 'playing' | 'finished'
 
@@ -31,7 +31,7 @@ export type LobbyPlayer = {
 
 export async function createLobby(
   hostId: string,
-  quiz: UserQuiz,
+  quiz: QuizTopic,
   timeLimitSeconds: number,
   hostUsername: string,
 ): Promise<{ lobby: Lobby; player: LobbyPlayer }> {
@@ -74,7 +74,7 @@ export async function findLobbyByCode(code: string): Promise<Lobby | null> {
   const { data, error } = await supabase
     .from('lobbies')
     .select('*')
-    .eq('code', code.toUpperCase())
+    .eq('code', code.trim())
     .maybeSingle()
 
   if (error) {
