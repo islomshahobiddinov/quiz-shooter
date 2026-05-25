@@ -3,7 +3,6 @@ import type { LastEvent, MafiaLobby, MafiaPlayer, MafiaRole } from '../lib/mafia
 import {
   castVote,
   checkAllNightActionsReady,
-  checkWinner,
   resolveNight,
   resolveVote,
   startDayVote,
