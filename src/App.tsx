@@ -14,6 +14,11 @@ import type { ShooterFinished, ShooterProgress } from './components/ShooterCanva
 import { LobbyCreateDialog } from './components/LobbyCreateDialog'
 import { LobbyJoinDialog } from './components/LobbyJoinDialog'
 import { LobbyView } from './components/LobbyView'
+import { MafiaLobbyPage } from './components/MafiaLobbyPage'
+import { MafiaGame } from './components/MafiaGame'
+import type { MafiaLobby, MafiaPlayer } from './lib/mafiaApi'
+import { getMafiaLobby } from './lib/mafiaApi'
+import { clearMafiaSession, loadMafiaSession, saveMafiaSession } from './lib/mafiaSession'
 import './App.css'
 
 const topics = quizzes as QuizTopic[]
@@ -48,12 +53,38 @@ function App() {
   const [editingQuiz, setEditingQuiz] = useState<UserQuiz | null>(null)
   const [myQuizzesRefreshKey, setMyQuizzesRefreshKey] = useState(0)
 
-  // Lobby state
+  // Quiz lobby state
   const [createLobbyQuiz, setCreateLobbyQuiz] = useState<QuizTopic | null>(null)
   const [joinDialogOpen, setJoinDialogOpen] = useState(false)
   const [activeLobby, setActiveLobby] = useState<{ lobby: Lobby; player: LobbyPlayer } | null>(null)
 
-  // Restore lobby session on mount (anonymous user refreshed the page)
+  // Mafia state
+  const [activeMafiaLobby, setActiveMafiaLobby] = useState<{ lobby: MafiaLobby; player: MafiaPlayer } | null>(null)
+
+  // Restore mafia session on mount
+  useEffect(() => {
+    const session = loadMafiaSession()
+    if (!session) return
+    let cancelled = false
+    getMafiaLobby(session.lobbyId)
+      .then((lobby) => {
+        if (cancelled || !lobby) { if (!lobby) clearMafiaSession(); return }
+        if (lobby.status === 'finished') { clearMafiaSession(); return }
+        const restoredPlayer: MafiaPlayer = {
+          id: session.playerId,
+          lobby_id: session.lobbyId,
+          username: session.username,
+          is_host: session.isHost,
+          is_alive: true,
+          joined_at: new Date().toISOString(),
+        }
+        setActiveMafiaLobby({ lobby, player: restoredPlayer })
+      })
+      .catch(() => clearMafiaSession())
+    return () => { cancelled = true }
+  }, [])
+
+  // Restore quiz lobby session on mount (anonymous user refreshed the page)
   useEffect(() => {
     const session = loadLobbySession()
     if (!session) return
@@ -163,7 +194,18 @@ function App() {
   const livesText = `${'♥'.repeat(Math.max(0, hud.lives))}${'♡'.repeat(Math.max(0, 3 - hud.lives))}`
   const totalQuestions = selectedTopic?.questions.length ?? 0
 
-  // Lobby view takes over the screen entirely
+  // Mafia game takes over the screen entirely
+  if (activeMafiaLobby) {
+    return (
+      <MafiaGame
+        lobby={activeMafiaLobby.lobby}
+        player={activeMafiaLobby.player}
+        onExit={() => { clearMafiaSession(); setActiveMafiaLobby(null) }}
+      />
+    )
+  }
+
+  // Quiz lobby view takes over the screen entirely
   if (activeLobby) {
     return (
       <LobbyView
@@ -280,6 +322,21 @@ function App() {
                 setEditorOpen(true)
               }}
               onOpenLobby={(quiz) => setCreateLobbyQuiz(quiz)}
+            />
+          )}
+
+          {user && sidebarView === 'mafia' && (
+            <MafiaLobbyPage
+              hostId={user.id}
+              defaultUsername={userLabel}
+              onCreated={({ lobby, player }) => {
+                saveMafiaSession({ lobbyId: lobby.id, playerId: player.id, username: player.username, isHost: true })
+                setActiveMafiaLobby({ lobby, player })
+              }}
+              onJoined={({ lobby, player }) => {
+                saveMafiaSession({ lobbyId: lobby.id, playerId: player.id, username: player.username, isHost: false })
+                setActiveMafiaLobby({ lobby, player })
+              }}
             />
           )}
 

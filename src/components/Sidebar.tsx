@@ -1,4 +1,4 @@
-type SidebarView = 'public' | 'mine'
+type SidebarView = 'public' | 'mine' | 'mafia'
 
 type SidebarProps = {
   view: SidebarView
@@ -29,6 +29,13 @@ export function Sidebar({ view, onChange, userLabel, onSignOut }: SidebarProps) 
           onClick={() => onChange('mine')}
         >
           MENING TESTLARIM
+        </button>
+        <button
+          type="button"
+          className={`sidebar-link sidebar-link--mafia${view === 'mafia' ? ' is-active' : ''}`}
+          onClick={() => onChange('mafia')}
+        >
+          🔴 MAFIA O'YINI
         </button>
       </nav>
 
