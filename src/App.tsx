@@ -17,9 +17,23 @@ import { MafiaGame } from './components/MafiaGame'
 import type { MafiaLobby, MafiaPlayer } from './lib/mafiaApi'
 import { getMafiaLobby } from './lib/mafiaApi'
 import { clearMafiaSession, loadMafiaSession, saveMafiaSession } from './lib/mafiaSession'
+import type { TttLobby, TttPlayer } from './lib/tictactoeApi'
+import { getTttLobby } from './lib/tictactoeApi'
+import { clearTttSession, loadTttSession, saveTttSession } from './lib/tictactoeSession'
+import { TicTacToeGame } from './components/TicTacToeGame'
+import type { BotDifficulty } from './components/TicTacToeBotGame'
+import { TicTacToeBotGame } from './components/TicTacToeBotGame'
 import { TopicsPage } from './pages/TopicsPage'
 import { MafiaPage } from './pages/MafiaPage'
 import { MyQuizzesPage } from './pages/MyQuizzesPage'
+import { TicTacToePage } from './pages/TicTacToePage'
+import type { CheckersLobby, CheckersPlayer } from './lib/checkersApi'
+import { getCheckersLobby } from './lib/checkersApi'
+import { clearCheckersSession, loadCheckersSession, saveCheckersSession } from './lib/checkersSession'
+import type { CheckersDifficulty } from './lib/checkersLogic'
+import { CheckersBotGame } from './components/CheckersBotGame'
+import { CheckersGame } from './components/CheckersGame'
+import { CheckersPage } from './pages/CheckersPage'
 import './App.css'
 
 const topics = quizzes as QuizTopic[]
@@ -58,6 +72,14 @@ function App() {
   // Mafia state
   const [activeMafiaLobby, setActiveMafiaLobby] = useState<{ lobby: MafiaLobby; player: MafiaPlayer } | null>(null)
 
+  // TicTacToe state
+  const [activeTttLobby, setActiveTttLobby] = useState<{ lobby: TttLobby; player: TttPlayer } | null>(null)
+  const [activeBotGame, setActiveBotGame] = useState<{ username: string; difficulty: BotDifficulty } | null>(null)
+
+  // Checkers state
+  const [activeCheckersLobby, setActiveCheckersLobby] = useState<{ lobby: CheckersLobby; player: CheckersPlayer } | null>(null)
+  const [activeCheckersBotGame, setActiveCheckersBotGame] = useState<{ username: string; difficulty: CheckersDifficulty } | null>(null)
+
   // Stop quiz when navigating away from "/"
   const prevPathRef = useRef(location.pathname)
   useEffect(() => {
@@ -82,6 +104,42 @@ function App() {
         })
       })
       .catch(() => clearMafiaSession())
+    return () => { cancelled = true }
+  }, [])
+
+  // Restore Checkers session on mount
+  useEffect(() => {
+    const s = loadCheckersSession()
+    if (!s) return
+    let cancelled = false
+    getCheckersLobby(s.lobbyId)
+      .then((lobby) => {
+        if (cancelled || !lobby) { if (!lobby) clearCheckersSession(); return }
+        if (lobby.status === 'finished') { clearCheckersSession(); return }
+        setActiveCheckersLobby({
+          lobby,
+          player: { id: s.playerId, lobby_id: s.lobbyId, username: s.username, is_host: s.isHost, color: s.isHost ? 'red' : 'blue', joined_at: new Date().toISOString() },
+        })
+      })
+      .catch(() => clearCheckersSession())
+    return () => { cancelled = true }
+  }, [])
+
+  // Restore TicTacToe session on mount
+  useEffect(() => {
+    const s = loadTttSession()
+    if (!s) return
+    let cancelled = false
+    getTttLobby(s.lobbyId)
+      .then((lobby) => {
+        if (cancelled || !lobby) { if (!lobby) clearTttSession(); return }
+        if (lobby.status === 'finished') { clearTttSession(); return }
+        setActiveTttLobby({
+          lobby,
+          player: { id: s.playerId, lobby_id: s.lobbyId, username: s.username, is_host: s.isHost, symbol: s.isHost ? 'X' : 'O', joined_at: new Date().toISOString() },
+        })
+      })
+      .catch(() => clearTttSession())
     return () => { cancelled = true }
   }, [])
 
@@ -155,10 +213,82 @@ function App() {
     setActiveMafiaLobby(null)
   }
 
+  const handleTttCreated = ({ lobby, player }: { lobby: TttLobby; player: TttPlayer }) => {
+    saveTttSession({ lobbyId: lobby.id, playerId: player.id, username: player.username, isHost: true })
+    setActiveTttLobby({ lobby, player })
+  }
+
+  const handleTttJoined = ({ lobby, player }: { lobby: TttLobby; player: TttPlayer }) => {
+    saveTttSession({ lobbyId: lobby.id, playerId: player.id, username: player.username, isHost: false })
+    setActiveTttLobby({ lobby, player })
+  }
+
+  const handleTttExit = () => {
+    clearTttSession()
+    setActiveTttLobby(null)
+  }
+
+  const handleBotGame = ({ username, difficulty }: { username: string; difficulty: BotDifficulty }) => {
+    setActiveBotGame({ username, difficulty })
+  }
+
+  // Checkers handlers
+  const handleCheckersCreated = ({ lobby, player }: { lobby: CheckersLobby; player: CheckersPlayer }) => {
+    saveCheckersSession({ lobbyId: lobby.id, playerId: player.id, username: player.username, isHost: true })
+    setActiveCheckersLobby({ lobby, player })
+  }
+  const handleCheckersJoined = ({ lobby, player }: { lobby: CheckersLobby; player: CheckersPlayer }) => {
+    saveCheckersSession({ lobbyId: lobby.id, playerId: player.id, username: player.username, isHost: false })
+    setActiveCheckersLobby({ lobby, player })
+  }
+  const handleCheckersBotGame = ({ username, difficulty }: { username: string; difficulty: CheckersDifficulty }) => {
+    setActiveCheckersBotGame({ username, difficulty })
+  }
+
   const livesText = `${'♥'.repeat(Math.max(0, hud.lives))}${'♡'.repeat(Math.max(0, 3 - hud.lives))}`
   const totalQuestions = selectedTopic?.questions.length ?? 0
 
   // Full-screen takeovers (before any layout)
+  if (activeCheckersBotGame) {
+    return (
+      <CheckersBotGame
+        username={activeCheckersBotGame.username}
+        difficulty={activeCheckersBotGame.difficulty}
+        onExit={() => setActiveCheckersBotGame(null)}
+      />
+    )
+  }
+
+  if (activeCheckersLobby) {
+    return (
+      <CheckersGame
+        lobby={activeCheckersLobby.lobby}
+        player={activeCheckersLobby.player}
+        onExit={() => { clearCheckersSession(); setActiveCheckersLobby(null) }}
+      />
+    )
+  }
+
+  if (activeBotGame) {
+    return (
+      <TicTacToeBotGame
+        username={activeBotGame.username}
+        difficulty={activeBotGame.difficulty}
+        onExit={() => setActiveBotGame(null)}
+      />
+    )
+  }
+
+  if (activeTttLobby) {
+    return (
+      <TicTacToeGame
+        lobby={activeTttLobby.lobby}
+        player={activeTttLobby.player}
+        onExit={handleTttExit}
+      />
+    )
+  }
+
   if (activeMafiaLobby) {
     return (
       <MafiaGame
@@ -267,6 +397,28 @@ function App() {
                 ) : (
                   <Navigate to="/" replace />
                 )
+              }
+            />
+            <Route
+              path="/tictactoe"
+              element={
+                <TicTacToePage
+                  userLabel={userLabel}
+                  onCreated={handleTttCreated}
+                  onJoined={handleTttJoined}
+                  onBotGame={handleBotGame}
+                />
+              }
+            />
+            <Route
+              path="/checkers"
+              element={
+                <CheckersPage
+                  userLabel={userLabel}
+                  onCreated={handleCheckersCreated}
+                  onJoined={handleCheckersJoined}
+                  onBotGame={handleCheckersBotGame}
+                />
               }
             />
             <Route path="*" element={<Navigate to="/" replace />} />

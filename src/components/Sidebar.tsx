@@ -29,6 +29,28 @@ function IconMyQuizzes() {
   )
 }
 
+function IconCheckers() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+      <circle cx="3.5" cy="3.5" r="2" stroke="currentColor" strokeWidth="1.3" />
+      <circle cx="11.5" cy="3.5" r="2" stroke="currentColor" strokeWidth="1.3" />
+      <circle cx="3.5" cy="11.5" r="2" fill="currentColor" />
+      <circle cx="11.5" cy="11.5" r="2" fill="currentColor" />
+    </svg>
+  )
+}
+
+function IconTtt() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+      <line x1="5" y1="1" x2="5" y2="14" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      <line x1="10" y1="1" x2="10" y2="14" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      <line x1="1" y1="5" x2="14" y2="5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      <line x1="1" y1="10" x2="14" y2="10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+    </svg>
+  )
+}
+
 function IconMafia() {
   return (
     <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
@@ -82,6 +104,14 @@ export function Sidebar({ user, userLabel, onSignIn, onSignOut }: SidebarProps) 
             {t('nav.myTests')}
           </NavLink>
         )}
+        <NavLink to="/checkers" className={linkClass}>
+          <IconCheckers />
+          {t('nav.checkers')}
+        </NavLink>
+        <NavLink to="/tictactoe" className={linkClass}>
+          <IconTtt />
+          {t('nav.tictactoe')}
+        </NavLink>
         <NavLink to="/mafia" className={linkClass}>
           <IconMafia />
           {t('nav.mafiaGame')}
