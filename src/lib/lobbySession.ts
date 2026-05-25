@@ -1,4 +1,4 @@
-const KEY = 'quiz-shooter:lobby-session'
+const KEY = 'edu-mars:lobby-session'
 
 export type LobbySession = {
   lobbyId: string

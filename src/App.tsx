@@ -1,24 +1,24 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import quizzes from './quizzes.json'
 import { useAuth } from './lib/useAuth'
-import type { QuizTopic, UserQuiz } from './lib/quizzesApi'
+import type { QuizTopic } from './lib/quizzesApi'
 import type { Lobby, LobbyPlayer } from './lib/lobbiesApi'
 import { getLobby } from './lib/lobbiesApi'
 import { clearLobbySession, loadLobbySession, saveLobbySession } from './lib/lobbySession'
-import { MyQuizzes } from './components/MyQuizzes'
-import { QuizEditor } from './components/QuizEditor'
 import { Sidebar } from './components/Sidebar'
-import type { SidebarView } from './components/Sidebar'
 import { ShooterCanvas } from './components/ShooterCanvas'
 import type { ShooterFinished, ShooterProgress } from './components/ShooterCanvas'
 import { LobbyCreateDialog } from './components/LobbyCreateDialog'
 import { LobbyJoinDialog } from './components/LobbyJoinDialog'
 import { LobbyView } from './components/LobbyView'
-import { MafiaLobbyPage } from './components/MafiaLobbyPage'
 import { MafiaGame } from './components/MafiaGame'
 import type { MafiaLobby, MafiaPlayer } from './lib/mafiaApi'
 import { getMafiaLobby } from './lib/mafiaApi'
 import { clearMafiaSession, loadMafiaSession, saveMafiaSession } from './lib/mafiaSession'
+import { TopicsPage } from './pages/TopicsPage'
+import { MafiaPage } from './pages/MafiaPage'
+import { MyQuizzesPage } from './pages/MyQuizzesPage'
 import './App.css'
 
 const topics = quizzes as QuizTopic[]
@@ -31,7 +31,7 @@ const emptyHud: ShooterProgress = {
 }
 
 function App() {
-  const { session, loading: authLoading, signInWithGoogle, signOut } = useAuth()
+  const { session, signInWithGoogle, signOut } = useAuth()
   const user = session?.user ?? null
   const userLabel =
     (user?.user_metadata?.full_name as string | undefined) ||
@@ -39,6 +39,7 @@ function App() {
     user?.email ||
     ''
 
+  const location = useLocation()
   const [soundEnabled, setSoundEnabled] = useState(true)
 
   // Solo gameplay
@@ -46,12 +47,6 @@ function App() {
   const [resetSignal, setResetSignal] = useState(0)
   const [hud, setHud] = useState<ShooterProgress>(emptyHud)
   const [finished, setFinished] = useState<ShooterFinished | null>(null)
-
-  // Main-menu UI
-  const [sidebarView, setSidebarView] = useState<SidebarView>('public')
-  const [editorOpen, setEditorOpen] = useState(false)
-  const [editingQuiz, setEditingQuiz] = useState<UserQuiz | null>(null)
-  const [myQuizzesRefreshKey, setMyQuizzesRefreshKey] = useState(0)
 
   // Quiz lobby state
   const [createLobbyQuiz, setCreateLobbyQuiz] = useState<QuizTopic | null>(null)
@@ -61,87 +56,59 @@ function App() {
   // Mafia state
   const [activeMafiaLobby, setActiveMafiaLobby] = useState<{ lobby: MafiaLobby; player: MafiaPlayer } | null>(null)
 
+  // Stop quiz when navigating away from "/"
+  const prevPathRef = useRef(location.pathname)
+  useEffect(() => {
+    if (location.pathname !== '/' && prevPathRef.current === '/' && selectedTopic) {
+      backToTopics()
+    }
+    prevPathRef.current = location.pathname
+  }, [location.pathname]) // eslint-disable-line react-hooks/exhaustive-deps
+
   // Restore mafia session on mount
   useEffect(() => {
-    const session = loadMafiaSession()
-    if (!session) return
+    const s = loadMafiaSession()
+    if (!s) return
     let cancelled = false
-    getMafiaLobby(session.lobbyId)
+    getMafiaLobby(s.lobbyId)
       .then((lobby) => {
         if (cancelled || !lobby) { if (!lobby) clearMafiaSession(); return }
         if (lobby.status === 'finished') { clearMafiaSession(); return }
-        const restoredPlayer: MafiaPlayer = {
-          id: session.playerId,
-          lobby_id: session.lobbyId,
-          username: session.username,
-          is_host: session.isHost,
-          is_alive: true,
-          joined_at: new Date().toISOString(),
-        }
-        setActiveMafiaLobby({ lobby, player: restoredPlayer })
+        setActiveMafiaLobby({
+          lobby,
+          player: { id: s.playerId, lobby_id: s.lobbyId, username: s.username, is_host: s.isHost, is_alive: true, joined_at: new Date().toISOString() },
+        })
       })
       .catch(() => clearMafiaSession())
     return () => { cancelled = true }
   }, [])
 
-  // Restore quiz lobby session on mount (anonymous user refreshed the page)
+  // Restore quiz lobby session on mount
   useEffect(() => {
-    const session = loadLobbySession()
-    if (!session) return
+    const s = loadLobbySession()
+    if (!s) return
     let cancelled = false
-
-    getLobby(session.lobbyId)
+    getLobby(s.lobbyId)
       .then((lobby) => {
-        if (cancelled || !lobby) {
-          if (!lobby) clearLobbySession()
-          return
-        }
-
-        if (lobby.status === 'finished') {
-          clearLobbySession()
-          return
-        }
-
-        const restoredPlayer: LobbyPlayer = {
-          id: session.playerId,
-          lobby_id: session.lobbyId,
-          username: session.username,
-          is_host: session.isHost,
-          score: 0,
-          lives: 3,
-          question_index: 0,
-          finished: false,
-          joined_at: new Date().toISOString(),
-        }
-
-        setActiveLobby({ lobby, player: restoredPlayer })
+        if (cancelled || !lobby) { if (!lobby) clearLobbySession(); return }
+        if (lobby.status === 'finished') { clearLobbySession(); return }
+        setActiveLobby({
+          lobby,
+          player: { id: s.playerId, lobby_id: s.lobbyId, username: s.username, is_host: s.isHost, score: 0, lives: 3, question_index: 0, finished: false, joined_at: new Date().toISOString() },
+        })
       })
-      .catch(() => {
-        clearLobbySession()
-      })
-
-    return () => {
-      cancelled = true
-    }
+      .catch(() => clearLobbySession())
+    return () => { cancelled = true }
   }, [])
 
+  // Reset navigation on logout
   useEffect(() => {
-    if (!user) {
-      setSidebarView('public')
-      setEditorOpen(false)
-      setEditingQuiz(null)
-      setCreateLobbyQuiz(null)
-    }
+    if (!user) setCreateLobbyQuiz(null)
   }, [user])
 
   const startTopic = (topic: QuizTopic) => {
     setSelectedTopic(topic)
-    setHud({
-      question: topic.questions[0]?.q ?? '',
-      questionNumber: 1,
-      score: 0,
-      lives: 3,
-    })
+    setHud({ question: topic.questions[0]?.q ?? '', questionNumber: 1, score: 0, lives: 3 })
     setFinished(null)
     setResetSignal((s) => s + 1)
   }
@@ -154,96 +121,85 @@ function App() {
 
   const restartSolo = () => {
     if (!selectedTopic) return
-    setHud({
-      question: selectedTopic.questions[0]?.q ?? '',
-      questionNumber: 1,
-      score: 0,
-      lives: 3,
-    })
+    setHud({ question: selectedTopic.questions[0]?.q ?? '', questionNumber: 1, score: 0, lives: 3 })
     setFinished(null)
     setResetSignal((s) => s + 1)
   }
 
   const handleLobbyCreated = ({ lobby, player }: { lobby: Lobby; player: LobbyPlayer }) => {
-    saveLobbySession({
-      lobbyId: lobby.id,
-      playerId: player.id,
-      username: player.username,
-      isHost: true,
-    })
+    saveLobbySession({ lobbyId: lobby.id, playerId: player.id, username: player.username, isHost: true })
     setActiveLobby({ lobby, player })
     setCreateLobbyQuiz(null)
   }
 
   const handleLobbyJoined = ({ lobby, player }: { lobby: Lobby; player: LobbyPlayer }) => {
-    saveLobbySession({
-      lobbyId: lobby.id,
-      playerId: player.id,
-      username: player.username,
-      isHost: false,
-    })
+    saveLobbySession({ lobbyId: lobby.id, playerId: player.id, username: player.username, isHost: false })
     setActiveLobby({ lobby, player })
     setJoinDialogOpen(false)
   }
 
-  const handleLobbyExit = () => {
-    clearLobbySession()
-    setActiveLobby(null)
+  const handleMafiaCreated = ({ lobby, player }: { lobby: MafiaLobby; player: MafiaPlayer }) => {
+    saveMafiaSession({ lobbyId: lobby.id, playerId: player.id, username: player.username, isHost: true })
+    setActiveMafiaLobby({ lobby, player })
+  }
+
+  const handleMafiaJoined = ({ lobby, player }: { lobby: MafiaLobby; player: MafiaPlayer }) => {
+    saveMafiaSession({ lobbyId: lobby.id, playerId: player.id, username: player.username, isHost: false })
+    setActiveMafiaLobby({ lobby, player })
+  }
+
+  const handleMafiaExit = () => {
+    clearMafiaSession()
+    setActiveMafiaLobby(null)
   }
 
   const livesText = `${'♥'.repeat(Math.max(0, hud.lives))}${'♡'.repeat(Math.max(0, 3 - hud.lives))}`
   const totalQuestions = selectedTopic?.questions.length ?? 0
 
-  // Mafia game takes over the screen entirely
+  // Full-screen takeovers (before any layout)
   if (activeMafiaLobby) {
     return (
       <MafiaGame
         lobby={activeMafiaLobby.lobby}
         player={activeMafiaLobby.player}
-        onExit={() => { clearMafiaSession(); setActiveMafiaLobby(null) }}
+        onExit={handleMafiaExit}
       />
     )
   }
 
-  // Quiz lobby view takes over the screen entirely
   if (activeLobby) {
     return (
       <LobbyView
         lobby={activeLobby.lobby}
         player={activeLobby.player}
         soundEnabled={soundEnabled}
-        onSoundToggle={() => setSoundEnabled((enabled) => !enabled)}
-        onExit={handleLobbyExit}
+        onSoundToggle={() => setSoundEnabled((e) => !e)}
+        onExit={() => { clearLobbySession(); setActiveLobby(null) }}
       />
     )
   }
 
   return (
-    <main className={`quiz-shooter${selectedTopic ? ' is-playing' : ''}`}>
+    <main className={`edu-mars${selectedTopic ? ' is-playing' : ''}`}>
+      {/* HUD (shown during quiz) */}
       <div className={`hud${selectedTopic ? '' : ' is-hidden'}`}>
         <div className="score-bar">
           <button type="button" className="topic-back" onClick={backToTopics}>
             MAVZULAR
           </button>
-          <span>
-            TO'G'RI: <span>{hud.score}</span>
-          </span>
-          <span>
-            SAVOL: <span>{hud.questionNumber}</span>/{totalQuestions}
-          </span>
+          <span>TO'G'RI: <span>{hud.score}</span></span>
+          <span>SAVOL: <span>{hud.questionNumber}</span>/{totalQuestions}</span>
           <span className="lives">{livesText}</span>
           <button
             type="button"
             className="sound-toggle"
             aria-label={soundEnabled ? "Ovozni o'chirish" : 'Ovozni yoqish'}
-            onClick={() => setSoundEnabled((enabled) => !enabled)}
+            onClick={() => setSoundEnabled((e) => !e)}
           >
             OVOZ: {soundEnabled ? 'ON' : 'OFF'}
           </button>
           {user && (
-            <span className="user-chip" title={user.email ?? ''}>
-              {userLabel}
-            </span>
+            <span className="user-chip" title={user.email ?? ''}>{userLabel}</span>
           )}
         </div>
         <div className="question-box">
@@ -251,6 +207,7 @@ function App() {
         </div>
       </div>
 
+      {/* Canvas (always behind everything) */}
       <ShooterCanvas
         questions={selectedTopic?.questions ?? []}
         soundEnabled={soundEnabled}
@@ -260,119 +217,72 @@ function App() {
         onFinished={setFinished}
       />
 
-      <section className={`topic-menu${selectedTopic ? '' : ' is-visible'}${user ? ' has-sidebar' : ''}`}>
-        {user && (
-          <Sidebar view={sidebarView} onChange={setSidebarView} userLabel={userLabel} onSignOut={signOut} />
-        )}
+      {/* Main content overlay */}
+      <section className={`topic-menu${selectedTopic ? '' : ' is-visible'} has-sidebar`}>
+        <Sidebar
+          user={user}
+          userLabel={userLabel}
+          onSignIn={signInWithGoogle}
+          onSignOut={signOut}
+        />
+
         <div className="topic-menu-inner">
-          <div className="auth-bar">
-            {!user && authLoading ? (
-              <span className="auth-status">…</span>
-            ) : !user ? (
-              <button type="button" className="auth-button auth-button--primary" onClick={signInWithGoogle}>
-                GOOGLE BILAN KIRISH
-              </button>
-            ) : null}
-            <button type="button" className="auth-button" onClick={() => setJoinDialogOpen(true)}>
-              LOBBYGA QO'SHILISH
-            </button>
-          </div>
-
-          {(!user || sidebarView === 'public') && (
-            <>
-              <h1>Mavzuni tanlang</h1>
-              <div className="topic-grid">
-                {topics.map((topic) => (
-                  <div key={topic.id} className="topic-card topic-card--public">
-                    <button
-                      type="button"
-                      className="topic-card-main"
-                      onClick={() => startTopic(topic)}
-                    >
-                      <span>{topic.title}</span>
-                      <small>{topic.description}</small>
-                      <strong>{topic.questions.length} ta savol</strong>
-                    </button>
-                    {user && (
-                      <button
-                        type="button"
-                        className="topic-card-lobby"
-                        onClick={() => setCreateLobbyQuiz(topic)}
-                        title="Bu test bo'yicha lobby ochish"
-                      >
-                        + LOBBY
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-
-          {user && sidebarView === 'mine' && !editorOpen && (
-            <MyQuizzes
-              refreshKey={myQuizzesRefreshKey}
-              onPlay={(quiz) => startTopic(quiz)}
-              onEdit={(quiz) => {
-                setEditingQuiz(quiz)
-                setEditorOpen(true)
-              }}
-              onCreate={() => {
-                setEditingQuiz(null)
-                setEditorOpen(true)
-              }}
-              onOpenLobby={(quiz) => setCreateLobbyQuiz(quiz)}
+          {/* Page routes */}
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <TopicsPage
+                  user={user}
+                  topics={topics}
+                  onStartTopic={startTopic}
+                  onCreateLobby={setCreateLobbyQuiz}
+                  onJoinLobby={() => setJoinDialogOpen(true)}
+                />
+              }
             />
-          )}
-
-          {user && sidebarView === 'mafia' && (
-            <MafiaLobbyPage
-              hostId={user.id}
-              defaultUsername={userLabel}
-              onCreated={({ lobby, player }) => {
-                saveMafiaSession({ lobbyId: lobby.id, playerId: player.id, username: player.username, isHost: true })
-                setActiveMafiaLobby({ lobby, player })
-              }}
-              onJoined={({ lobby, player }) => {
-                saveMafiaSession({ lobbyId: lobby.id, playerId: player.id, username: player.username, isHost: false })
-                setActiveMafiaLobby({ lobby, player })
-              }}
+            <Route
+              path="/mafia"
+              element={
+                <MafiaPage
+                  user={user}
+                  userLabel={userLabel}
+                  onCreated={handleMafiaCreated}
+                  onJoined={handleMafiaJoined}
+                />
+              }
             />
-          )}
-
-          {user && sidebarView === 'mine' && editorOpen && (
-            <QuizEditor
-              userId={user.id}
-              existing={editingQuiz}
-              onSaved={() => {
-                setEditorOpen(false)
-                setEditingQuiz(null)
-                setMyQuizzesRefreshKey((key) => key + 1)
-              }}
-              onCancel={() => {
-                setEditorOpen(false)
-                setEditingQuiz(null)
-              }}
+            <Route
+              path="/my-quizzes"
+              element={
+                user ? (
+                  <MyQuizzesPage
+                    user={user}
+                    userLabel={userLabel}
+                    onStartTopic={startTopic}
+                    onCreateLobby={setCreateLobbyQuiz}
+                  />
+                ) : (
+                  <Navigate to="/" replace />
+                )
+              }
             />
-          )}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
         </div>
       </section>
 
+      {/* Solo game over overlay */}
       <div className={`overlay${finished ? ' is-visible' : ''}`}>
         <h2>{finished?.won ? 'TUGADI! 🏆' : 'GAME OVER'}</h2>
-        <p>
-          {totalQuestions} dan {hud.score} ta to'g'ri javob
-        </p>
+        <p>{totalQuestions} dan {hud.score} ta to'g'ri javob</p>
         <div className="overlay-actions">
-          <button type="button" onClick={restartSolo}>
-            ▶ QAYTA BOSHLASH
-          </button>
-          <button type="button" onClick={backToTopics}>
-            MAVZULAR
-          </button>
+          <button type="button" onClick={restartSolo}>▶ QAYTA BOSHLASH</button>
+          <button type="button" onClick={backToTopics}>MAVZULAR</button>
         </div>
       </div>
 
+      {/* Dialogs */}
       {user && createLobbyQuiz && (
         <LobbyCreateDialog
           hostId={user.id}

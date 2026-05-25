@@ -3,15 +3,16 @@ import type { MafiaLobby, MafiaPlayer } from '../lib/mafiaApi'
 import { createMafiaLobby, findMafiaLobbyByCode, joinMafiaLobby } from '../lib/mafiaApi'
 
 type Props = {
-  hostId: string
+  hostId: string | null
   defaultUsername: string
   onCreated: (data: { lobby: MafiaLobby; player: MafiaPlayer }) => void
   onJoined: (data: { lobby: MafiaLobby; player: MafiaPlayer }) => void
+  onBack?: () => void
 }
 
 type Mode = 'idle' | 'creating' | 'joining'
 
-export function MafiaLobbyPage({ hostId, defaultUsername, onCreated, onJoined }: Props) {
+export function MafiaLobbyPage({ hostId, defaultUsername, onCreated, onJoined, onBack }: Props) {
   const [mode, setMode] = useState<Mode>('idle')
   const [username, setUsername] = useState(defaultUsername)
   const [code, setCode] = useState('')
@@ -19,6 +20,7 @@ export function MafiaLobbyPage({ hostId, defaultUsername, onCreated, onJoined }:
   const [err, setErr] = useState('')
 
   const handleCreate = async () => {
+    if (!hostId) return
     if (!username.trim()) { setErr('Ismingizni kiriting'); return }
     setBusy(true); setErr('')
     try {
@@ -50,10 +52,40 @@ export function MafiaLobbyPage({ hostId, defaultUsername, onCreated, onJoined }:
 
   return (
     <div className="mafia-lobby-page">
-      <h1 className="mafia-title">MAFIA O'YINI</h1>
+      <div className="mafia-lobby-page-header">
+        {onBack && (
+          <button type="button" className="mafia-back-link" onClick={onBack}>
+            ← ORQAGA
+          </button>
+        )}
+        <h1 className="mafia-title">MAFIA O'YINI</h1>
+      </div>
 
       {mode === 'idle' && (
         <>
+          <div className="mafia-lobby-actions">
+            {hostId ? (
+              <button
+                type="button"
+                className="mafia-btn mafia-btn--primary"
+                onClick={() => { setMode('creating'); setErr('') }}
+              >
+                + LOBBY OCHISH
+              </button>
+            ) : (
+              <div className="mafia-anon-note">
+                Lobby ochish uchun <strong>Google bilan kiring</strong>
+              </div>
+            )}
+            <button
+              type="button"
+              className="mafia-btn"
+              onClick={() => { setMode('joining'); setErr('') }}
+            >
+              LOBBYGA QO'SHILISH
+            </button>
+          </div>
+
           <div className="mafia-rules">
             <h2>QOIDALAR</h2>
             <ul>
@@ -69,26 +101,9 @@ export function MafiaLobbyPage({ hostId, defaultUsername, onCreated, onJoined }:
               <div className="mafia-flow-arrow">↓</div>
               <div className="mafia-flow-step">MUHOKAMA: Barcha ovoz berib kimnidir chiqaradi</div>
               <div className="mafia-flow-arrow">↓</div>
-              <div className="mafia-flow-step">G'OLIB: Barcha mafiachi yo'q qilinsa SHAHAR yutadi · Mafia tengdosh bo'lsa MAFIA yutadi</div>
+              <div className="mafia-flow-step">G'OLIB: Barcha mafiachi yo'q qilinsa SHAHAR · Mafia tengdosh bo'lsa MAFIA yutadi</div>
             </div>
-            <p className="mafia-rules-note">Minimum 4 o'yinchi kerak · 4-5 kishi: 1 mafia · 6-8: 2 mafia · 9+: 3 mafia</p>
-          </div>
-
-          <div className="mafia-lobby-actions">
-            <button
-              type="button"
-              className="mafia-btn mafia-btn--primary"
-              onClick={() => { setMode('creating'); setErr('') }}
-            >
-              + LOBBY OCHISH
-            </button>
-            <button
-              type="button"
-              className="mafia-btn"
-              onClick={() => { setMode('joining'); setErr('') }}
-            >
-              LOBBYGA QO'SHILISH
-            </button>
+            <p className="mafia-rules-note">Minimum 4 o'yinchi · 4-5 kishi: 1 mafia · 6-8: 2 mafia · 9+: 3 mafia</p>
           </div>
         </>
       )}

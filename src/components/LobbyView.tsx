@@ -160,7 +160,7 @@ export function LobbyView({ lobby: initialLobby, player, soundEnabled, onSoundTo
   const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`
 
   return (
-    <main className={`quiz-shooter${isPlaying ? ' is-playing' : ''}`}>
+    <main className={`edu-mars${isPlaying ? ' is-playing' : ''}`}>
       {isPlaying && (
         <div className="hud">
           <div className="score-bar">
