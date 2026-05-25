@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import type { User } from '@supabase/supabase-js'
 import type { QuizTopic } from '../lib/quizzesApi'
 
@@ -10,12 +11,14 @@ type Props = {
 }
 
 export function TopicsPage({ user, topics, onStartTopic, onCreateLobby, onJoinLobby }: Props) {
+  const { t } = useTranslation()
+
   return (
     <>
       <div className="topics-header">
-        <h1>Mavzuni tanlang</h1>
+        <h1>{t('topics.chooseTitle')}</h1>
         <button type="button" className="auth-button topics-join-btn" onClick={onJoinLobby}>
-          QUIZ LOBBYGA QO'SHILISH
+          {t('topics.joinLobby')}
         </button>
       </div>
       <div className="topic-grid">
@@ -28,16 +31,16 @@ export function TopicsPage({ user, topics, onStartTopic, onCreateLobby, onJoinLo
             >
               <span>{topic.title}</span>
               <small>{topic.description}</small>
-              <strong>{topic.questions.length} ta savol</strong>
+              <strong>{topic.questions.length} {t('topics.questions')}</strong>
             </button>
             {user && (
               <button
                 type="button"
                 className="topic-card-lobby"
                 onClick={() => onCreateLobby(topic)}
-                title="Bu test bo'yicha lobby ochish"
+                title={t('topics.createLobbyTitle')}
               >
-                + LOBBY
+                {t('topics.createLobby')}
               </button>
             )}
           </div>

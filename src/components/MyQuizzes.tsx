@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { UserQuiz } from '../lib/quizzesApi'
 import { deleteQuiz, listMyQuizzes } from '../lib/quizzesApi'
 
@@ -11,6 +12,7 @@ type MyQuizzesProps = {
 }
 
 export function MyQuizzes({ onPlay, onEdit, onCreate, onOpenLobby, refreshKey }: MyQuizzesProps) {
+  const { t } = useTranslation()
   const [quizzes, setQuizzes] = useState<UserQuiz[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -30,7 +32,7 @@ export function MyQuizzes({ onPlay, onEdit, onCreate, onOpenLobby, refreshKey }:
       })
       .catch((err: unknown) => {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : 'Yuklashda xatolik')
+          setError(err instanceof Error ? err.message : t('myQuizzes.loadingError'))
           setLoading(false)
         }
       })
@@ -38,10 +40,10 @@ export function MyQuizzes({ onPlay, onEdit, onCreate, onOpenLobby, refreshKey }:
     return () => {
       cancelled = true
     }
-  }, [refreshKey])
+  }, [refreshKey]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleDelete = async (quiz: UserQuiz) => {
-    if (!window.confirm(`"${quiz.title}" testini o'chirishni tasdiqlaysizmi?`)) {
+    if (!window.confirm(t('myQuizzes.confirmDelete', { title: quiz.title }))) {
       return
     }
 
@@ -51,7 +53,7 @@ export function MyQuizzes({ onPlay, onEdit, onCreate, onOpenLobby, refreshKey }:
       await deleteQuiz(quiz.id)
       setQuizzes((current) => current.filter((item) => item.id !== quiz.id))
     } catch (err) {
-      setError(err instanceof Error ? err.message : "O'chirishda xatolik")
+      setError(err instanceof Error ? err.message : t('myQuizzes.deleteError'))
     } finally {
       setDeletingId(null)
     }
@@ -60,25 +62,25 @@ export function MyQuizzes({ onPlay, onEdit, onCreate, onOpenLobby, refreshKey }:
   return (
     <div className="my-quizzes">
       <div className="my-quizzes-head">
-        <h1>Mening testlarim</h1>
+        <h1>{t('myQuizzes.title')}</h1>
         <button type="button" className="auth-button auth-button--primary" onClick={onCreate}>
-          + YANGI TEST
+          {t('myQuizzes.newTest')}
         </button>
       </div>
 
-      {loading && <p className="my-quizzes-status">Yuklanmoqda…</p>}
+      {loading && <p className="my-quizzes-status">{t('myQuizzes.loading')}</p>}
       {error && <p className="my-quizzes-error">{error}</p>}
 
       {!loading && !error && quizzes.length === 0 && (
-        <p className="my-quizzes-status">Hali test yaratmagansiz. "+ YANGI TEST" tugmasini bosing.</p>
+        <p className="my-quizzes-status">{t('myQuizzes.empty')}</p>
       )}
 
       <div className="topic-grid">
         {quizzes.map((quiz) => (
           <article key={quiz.id} className="topic-card topic-card--mine">
             <span>{quiz.title}</span>
-            <small>{quiz.description || ' '}</small>
-            <strong>{quiz.questions.length} ta savol</strong>
+            <small>{quiz.description || ' '}</small>
+            <strong>{quiz.questions.length} {t('myQuizzes.questions')}</strong>
             <div className="quiz-card-actions">
               <button
                 type="button"
@@ -86,7 +88,7 @@ export function MyQuizzes({ onPlay, onEdit, onCreate, onOpenLobby, refreshKey }:
                 onClick={() => onPlay(quiz)}
                 disabled={quiz.questions.length === 0}
               >
-                ▶ O'YNASH
+                {t('myQuizzes.play')}
               </button>
               <button
                 type="button"
@@ -94,10 +96,10 @@ export function MyQuizzes({ onPlay, onEdit, onCreate, onOpenLobby, refreshKey }:
                 onClick={() => onOpenLobby(quiz)}
                 disabled={quiz.questions.length === 0}
               >
-                + LOBBY
+                {t('myQuizzes.lobby')}
               </button>
               <button type="button" className="auth-button" onClick={() => onEdit(quiz)}>
-                TAHRIRLASH
+                {t('myQuizzes.edit')}
               </button>
               <button
                 type="button"
@@ -105,7 +107,7 @@ export function MyQuizzes({ onPlay, onEdit, onCreate, onOpenLobby, refreshKey }:
                 onClick={() => handleDelete(quiz)}
                 disabled={deletingId === quiz.id}
               >
-                {deletingId === quiz.id ? "O'CHIRILMOQDA…" : "O'CHIRISH"}
+                {deletingId === quiz.id ? t('myQuizzes.deleting') : t('myQuizzes.delete')}
               </button>
             </div>
           </article>

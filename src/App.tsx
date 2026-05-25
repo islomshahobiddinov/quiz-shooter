@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import quizzes from './quizzes.json'
 import { useAuth } from './lib/useAuth'
@@ -31,6 +32,7 @@ const emptyHud: ShooterProgress = {
 }
 
 function App() {
+  const { t } = useTranslation()
   const { session, signInWithGoogle, signOut } = useAuth()
   const user = session?.user ?? null
   const userLabel =
@@ -185,18 +187,18 @@ function App() {
       <div className={`hud${selectedTopic ? '' : ' is-hidden'}`}>
         <div className="score-bar">
           <button type="button" className="topic-back" onClick={backToTopics}>
-            MAVZULAR
+            {t('hud.topics')}
           </button>
-          <span>TO'G'RI: <span>{hud.score}</span></span>
-          <span>SAVOL: <span>{hud.questionNumber}</span>/{totalQuestions}</span>
+          <span>{t('hud.correct')}: <span>{hud.score}</span></span>
+          <span>{t('hud.question')}: <span>{hud.questionNumber}</span>/{totalQuestions}</span>
           <span className="lives">{livesText}</span>
           <button
             type="button"
             className="sound-toggle"
-            aria-label={soundEnabled ? "Ovozni o'chirish" : 'Ovozni yoqish'}
+            aria-label={soundEnabled ? t('hud.soundOff') : t('hud.soundOn')}
             onClick={() => setSoundEnabled((e) => !e)}
           >
-            OVOZ: {soundEnabled ? 'ON' : 'OFF'}
+            {t('hud.sound')}: {soundEnabled ? 'ON' : 'OFF'}
           </button>
           {user && (
             <span className="user-chip" title={user.email ?? ''}>{userLabel}</span>
@@ -274,11 +276,11 @@ function App() {
 
       {/* Solo game over overlay */}
       <div className={`overlay${finished ? ' is-visible' : ''}`}>
-        <h2>{finished?.won ? 'TUGADI! 🏆' : 'GAME OVER'}</h2>
-        <p>{totalQuestions} dan {hud.score} ta to'g'ri javob</p>
+        <h2>{finished?.won ? t('gameOver.won') : t('gameOver.lost')}</h2>
+        <p>{t('gameOver.correctAnswers', { score: hud.score, total: totalQuestions })}</p>
         <div className="overlay-actions">
-          <button type="button" onClick={restartSolo}>▶ QAYTA BOSHLASH</button>
-          <button type="button" onClick={backToTopics}>MAVZULAR</button>
+          <button type="button" onClick={restartSolo}>{t('gameOver.restart')}</button>
+          <button type="button" onClick={backToTopics}>{t('gameOver.topics')}</button>
         </div>
       </div>
 

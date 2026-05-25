@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import type { User } from '@supabase/supabase-js'
 
 type SidebarProps = {
@@ -53,8 +54,15 @@ function IconGoogle() {
 }
 
 export function Sidebar({ user, userLabel, onSignIn, onSignOut }: SidebarProps) {
+  const { t, i18n } = useTranslation()
+
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     `sidebar-link${isActive ? ' is-active' : ''}`
+
+  const switchLang = (lang: string) => {
+    i18n.changeLanguage(lang)
+    localStorage.setItem('edu-mars:lang', lang)
+  }
 
   return (
     <aside className="sidebar">
@@ -66,29 +74,45 @@ export function Sidebar({ user, userLabel, onSignIn, onSignOut }: SidebarProps) 
       <nav className="sidebar-nav">
         <NavLink to="/" end className={linkClass}>
           <IconQuiz />
-          TESTLAR
+          {t('nav.tests')}
         </NavLink>
         {user && (
           <NavLink to="/my-quizzes" className={linkClass}>
             <IconMyQuizzes />
-            MENING TESTLARIM
+            {t('nav.myTests')}
           </NavLink>
         )}
         <NavLink to="/mafia" className={linkClass}>
           <IconMafia />
-          MAFIA O'YINI
+          {t('nav.mafiaGame')}
         </NavLink>
       </nav>
 
       <div className="sidebar-footer">
+        <div className="lang-switcher">
+          <button
+            type="button"
+            className={`lang-btn${i18n.language === 'uz' ? ' is-active' : ''}`}
+            onClick={() => switchLang('uz')}
+          >
+            UZ
+          </button>
+          <button
+            type="button"
+            className={`lang-btn${i18n.language === 'ru' ? ' is-active' : ''}`}
+            onClick={() => switchLang('ru')}
+          >
+            RU
+          </button>
+        </div>
         {user ? (
           <button type="button" className="sidebar-signout" onClick={onSignOut}>
-            CHIQISH
+            {t('nav.signOut')}
           </button>
         ) : (
           <button type="button" className="sidebar-signin" onClick={onSignIn}>
             <IconGoogle />
-            GOOGLE BILAN KIRISH
+            {t('nav.signIn')}
           </button>
         )}
       </div>

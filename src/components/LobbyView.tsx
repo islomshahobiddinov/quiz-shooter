@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ShooterCanvas } from './ShooterCanvas'
 import type { ShooterFinished, ShooterProgress } from './ShooterCanvas'
 import type { Lobby, LobbyPlayer } from '../lib/lobbiesApi'
@@ -21,6 +22,7 @@ type LobbyViewProps = {
 }
 
 export function LobbyView({ lobby: initialLobby, player, soundEnabled, onSoundToggle, onExit }: LobbyViewProps) {
+  const { t } = useTranslation()
   const [lobby, setLobby] = useState<Lobby>(initialLobby)
   const [players, setPlayers] = useState<LobbyPlayer[]>([])
   const [remaining, setRemaining] = useState(initialLobby.time_limit_seconds)
@@ -164,12 +166,12 @@ export function LobbyView({ lobby: initialLobby, player, soundEnabled, onSoundTo
       {isPlaying && (
         <div className="hud">
           <div className="score-bar">
-            <span className="lobby-code-chip">KOD: {lobby.code}</span>
+            <span className="lobby-code-chip">{t('lobbyView.code')}: {lobby.code}</span>
             <span>
-              TO'G'RI: <span>{hud.score}</span>
+              {t('lobbyView.correct')}: <span>{hud.score}</span>
             </span>
             <span>
-              SAVOL: <span>{hud.questionNumber}</span>/{totalQuestions}
+              {t('lobbyView.question')}: <span>{hud.questionNumber}</span>/{totalQuestions}
             </span>
             <span className="lives">{livesText}</span>
             <span className={`lobby-timer${remaining <= 10 ? ' is-urgent' : ''}`}>⏱ {timeStr}</span>
@@ -178,7 +180,7 @@ export function LobbyView({ lobby: initialLobby, player, soundEnabled, onSoundTo
               className="sound-toggle"
               onClick={onSoundToggle}
             >
-              OVOZ: {soundEnabled ? 'ON' : 'OFF'}
+              {t('lobbyView.sound')}: {soundEnabled ? 'ON' : 'OFF'}
             </button>
           </div>
           <div className="question-box">
@@ -199,7 +201,7 @@ export function LobbyView({ lobby: initialLobby, player, soundEnabled, onSoundTo
 
       {isPlaying && (
         <aside className="live-leaderboard">
-          <h3>JONLI REYTING</h3>
+          <h3>{t('lobbyView.liveLeaderboard')}</h3>
           <ol>
             {sortedPlayers.map((p) => (
               <li key={p.id} className={p.id === player.id ? 'is-me' : ''}>
@@ -219,14 +221,14 @@ export function LobbyView({ lobby: initialLobby, player, soundEnabled, onSoundTo
         <section className="topic-menu is-visible">
           <div className="topic-menu-inner lobby-room">
             <div className="my-quizzes-head">
-              <h1>{isHost ? 'Lobby tayyor' : 'Lobby kutilmoqda'}</h1>
+              <h1>{isHost ? t('lobbyView.ready') : t('lobbyView.waiting')}</h1>
               <button type="button" className="auth-button" onClick={handleExit}>
-                CHIQISH
+                {t('lobbyView.exit')}
               </button>
             </div>
 
             <div className="lobby-code-block">
-              <span className="lobby-code-label">KOD</span>
+              <span className="lobby-code-label">{t('lobbyView.code')}</span>
               <span className="lobby-code-big">{lobby.code}</span>
               <button
                 type="button"
@@ -235,27 +237,27 @@ export function LobbyView({ lobby: initialLobby, player, soundEnabled, onSoundTo
                   navigator.clipboard?.writeText(lobby.code).catch(() => undefined)
                 }}
               >
-                NUSXALASH
+                {t('lobbyView.copy')}
               </button>
             </div>
 
             <p className="lobby-meta">
-              Test: <strong>{lobby.quiz_title}</strong> · {totalQuestions} ta savol · vaqt:{' '}
+              {t('lobbyView.test')}: <strong>{lobby.quiz_title}</strong> · {totalQuestions} {t('lobbyView.questions')} · {t('lobbyView.time')}:{' '}
               <strong>{lobby.time_limit_seconds}s</strong>
             </p>
 
-            <h3 className="lobby-section-title">O'yinchilar ({players.length})</h3>
+            <h3 className="lobby-section-title">{t('lobbyView.players')} ({players.length})</h3>
             <ul className="lobby-player-list">
               {players.map((p) => (
                 <li key={p.id}>
                   <span>
                     {p.username}
-                    {p.is_host && <em> ★ host</em>}
-                    {p.id === player.id && <em> (siz)</em>}
+                    {p.is_host && <em> {t('lobbyView.host')}</em>}
+                    {p.id === player.id && <em> {t('lobbyView.you')}</em>}
                   </span>
                 </li>
               ))}
-              {players.length === 0 && <li className="lobby-empty">Hali hech kim qo'shilmadi…</li>}
+              {players.length === 0 && <li className="lobby-empty">{t('lobbyView.noPlayers')}</li>}
             </ul>
 
             {isHost ? (
@@ -265,10 +267,10 @@ export function LobbyView({ lobby: initialLobby, player, soundEnabled, onSoundTo
                 onClick={handleStart}
                 disabled={players.length === 0}
               >
-                ▶ BOSHLASH
+                {t('lobbyView.start')}
               </button>
             ) : (
-              <p className="lobby-waiting">Host boshlashini kuting…</p>
+              <p className="lobby-waiting">{t('lobbyView.waitingForHost')}</p>
             )}
           </div>
         </section>
@@ -277,7 +279,7 @@ export function LobbyView({ lobby: initialLobby, player, soundEnabled, onSoundTo
       {(isFinished || (isPlaying && localFinished)) && (
         <div className="overlay is-visible">
           <h2>
-            {isFinished ? 'YAKUNIY REYTING' : localFinished?.won ? 'TUGADI! 🏆' : "VAQT TUGADI"}
+            {isFinished ? t('lobbyView.finalLeaderboard') : localFinished?.won ? t('lobbyView.won') : t('lobbyView.timesUp')}
           </h2>
           <ol className="final-leaderboard">
             {sortedPlayers.map((p, index) => (
@@ -299,11 +301,11 @@ export function LobbyView({ lobby: initialLobby, player, soundEnabled, onSoundTo
                   finishLobby(lobby.id).catch((err) => console.error(err))
                 }}
               >
-                LOBBYNI YOPISH
+                {t('lobbyView.closeLobby')}
               </button>
             )}
             <button type="button" onClick={handleExit}>
-              CHIQISH
+              {t('lobbyView.exitBtn')}
             </button>
           </div>
         </div>

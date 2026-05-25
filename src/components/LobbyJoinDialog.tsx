@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
+import { useTranslation } from 'react-i18next'
 import { findLobbyByCode, joinLobby } from '../lib/lobbiesApi'
 import type { Lobby, LobbyPlayer } from '../lib/lobbiesApi'
 
@@ -10,6 +11,7 @@ type LobbyJoinDialogProps = {
 }
 
 export function LobbyJoinDialog({ defaultUsername = '', onJoined, onCancel }: LobbyJoinDialogProps) {
+  const { t } = useTranslation()
   const [code, setCode] = useState('')
   const [username, setUsername] = useState(defaultUsername)
   const [busy, setBusy] = useState(false)
@@ -21,12 +23,12 @@ export function LobbyJoinDialog({ defaultUsername = '', onJoined, onCancel }: Lo
     const cleanedName = username.trim()
 
     if (!/^\d{6}$/.test(cleanedCode)) {
-      setError("Lobby kodi 6 ta raqamdan iborat bo'lishi kerak")
+      setError(t('lobbyJoin.codeRequired'))
       return
     }
 
     if (!cleanedName) {
-      setError('Foydalanuvchi nomini kiriting')
+      setError(t('lobbyJoin.nameRequired'))
       return
     }
 
@@ -37,19 +39,19 @@ export function LobbyJoinDialog({ defaultUsername = '', onJoined, onCancel }: Lo
       const lobby = await findLobbyByCode(cleanedCode)
 
       if (!lobby) {
-        setError('Bunday kodli lobby topilmadi')
+        setError(t('lobbyJoin.notFound'))
         setBusy(false)
         return
       }
 
       if (lobby.status === 'finished') {
-        setError('Bu lobby allaqachon tugagan')
+        setError(t('lobbyJoin.finished'))
         setBusy(false)
         return
       }
 
       if (lobby.status === 'playing') {
-        setError('Bu lobby allaqachon boshlangan')
+        setError(t('lobbyJoin.started'))
         setBusy(false)
         return
       }
@@ -57,7 +59,7 @@ export function LobbyJoinDialog({ defaultUsername = '', onJoined, onCancel }: Lo
       const player = await joinLobby(lobby.id, cleanedName)
       onJoined({ lobby, player })
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Qo'shilishda xatolik")
+      setError(err instanceof Error ? err.message : t('lobbyJoin.joinError'))
       setBusy(false)
     }
   }
@@ -65,10 +67,10 @@ export function LobbyJoinDialog({ defaultUsername = '', onJoined, onCancel }: Lo
   return (
     <div className="modal-backdrop" onClick={onCancel}>
       <form className="modal" onClick={(event) => event.stopPropagation()} onSubmit={handleSubmit}>
-        <h2>Lobbyga qo'shilish</h2>
+        <h2>{t('lobbyJoin.title')}</h2>
 
         <label className="editor-field">
-          <span>Lobby kod</span>
+          <span>{t('lobbyJoin.code')}</span>
           <input
             type="text"
             inputMode="numeric"
@@ -76,19 +78,19 @@ export function LobbyJoinDialog({ defaultUsername = '', onJoined, onCancel }: Lo
             value={code}
             onChange={(event) => setCode(event.target.value.replace(/\D/g, '').slice(0, 6))}
             maxLength={6}
-            placeholder="123456"
+            placeholder={t('lobbyJoin.codePlaceholder')}
             autoFocus
           />
         </label>
 
         <label className="editor-field">
-          <span>Sizning ismingiz</span>
+          <span>{t('lobbyJoin.yourName')}</span>
           <input
             type="text"
             value={username}
             onChange={(event) => setUsername(event.target.value)}
             maxLength={32}
-            placeholder="Masalan: Ali"
+            placeholder={t('lobbyJoin.namePlaceholder')}
           />
         </label>
 
@@ -96,10 +98,10 @@ export function LobbyJoinDialog({ defaultUsername = '', onJoined, onCancel }: Lo
 
         <div className="modal-actions">
           <button type="button" className="auth-button" onClick={onCancel} disabled={busy}>
-            BEKOR
+            {t('lobbyJoin.cancel')}
           </button>
           <button type="submit" className="auth-button auth-button--primary" disabled={busy}>
-            {busy ? "TEKSHIRILMOQDA…" : "QO'SHILISH"}
+            {busy ? t('lobbyJoin.checking') : t('lobbyJoin.join')}
           </button>
         </div>
       </form>

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { QuizTopic } from '../lib/quizzesApi'
 import { createLobby } from '../lib/lobbiesApi'
 import type { Lobby, LobbyPlayer } from '../lib/lobbiesApi'
@@ -19,6 +20,7 @@ export function LobbyCreateDialog({
   onCreated,
   onCancel,
 }: LobbyCreateDialogProps) {
+  const { t } = useTranslation()
   const [username, setUsername] = useState(defaultUsername || 'Host')
   const [seconds, setSeconds] = useState(180)
   const [busy, setBusy] = useState(false)
@@ -30,12 +32,12 @@ export function LobbyCreateDialog({
     const cleanedName = username.trim()
 
     if (!cleanedName) {
-      setError('Foydalanuvchi nomini kiriting')
+      setError(t('lobbyCreate.nameRequired'))
       return
     }
 
     if (quiz.questions.length === 0) {
-      setError('Bu testda savollar yoʻq')
+      setError(t('lobbyCreate.noQuestions'))
       return
     }
 
@@ -48,7 +50,7 @@ export function LobbyCreateDialog({
       const result = await createLobby(hostId, quiz, cleanSeconds, cleanedName)
       onCreated(result)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Yaratishda xatolik')
+      setError(err instanceof Error ? err.message : t('lobbyCreate.createError'))
       setBusy(false)
     }
   }
@@ -56,22 +58,24 @@ export function LobbyCreateDialog({
   return (
     <div className="modal-backdrop" onClick={onCancel}>
       <form className="modal" onClick={(event) => event.stopPropagation()} onSubmit={handleSubmit}>
-        <h2>Lobby ochish</h2>
-        <p className="modal-sub">Test: <strong>{quiz.title}</strong> ({quiz.questions.length} ta savol)</p>
+        <h2>{t('lobbyCreate.title')}</h2>
+        <p className="modal-sub">
+          {t('lobbyCreate.test')}: <strong>{quiz.title}</strong> ({quiz.questions.length} {t('lobbyCreate.questions')})
+        </p>
 
         <label className="editor-field">
-          <span>Sizning ismingiz (host)</span>
+          <span>{t('lobbyCreate.yourName')}</span>
           <input
             type="text"
             value={username}
             onChange={(event) => setUsername(event.target.value)}
             maxLength={32}
-            placeholder="Masalan: Aliyev"
+            placeholder={t('lobbyCreate.namePlaceholder')}
           />
         </label>
 
         <label className="editor-field">
-          <span>Vaqt chegarasi (sekund)</span>
+          <span>{t('lobbyCreate.timeLimit')}</span>
           <input
             type="number"
             min={10}
@@ -79,17 +83,17 @@ export function LobbyCreateDialog({
             value={seconds}
             onChange={(event) => setSeconds(Number(event.target.value) || 0)}
           />
-          <small className="modal-hint">10–3600 sekund. Masalan 180 = 3 daqiqa.</small>
+          <small className="modal-hint">{t('lobbyCreate.timeLimitHint')}</small>
         </label>
 
         {error && <p className="my-quizzes-error">{error}</p>}
 
         <div className="modal-actions">
           <button type="button" className="auth-button" onClick={onCancel} disabled={busy}>
-            BEKOR
+            {t('lobbyCreate.cancel')}
           </button>
           <button type="submit" className="auth-button auth-button--primary" disabled={busy}>
-            {busy ? "OCHILMOQDA…" : "LOBBY OCHISH"}
+            {busy ? t('lobbyCreate.opening') : t('lobbyCreate.create')}
           </button>
         </div>
       </form>

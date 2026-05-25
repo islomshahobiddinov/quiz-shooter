@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { QuizDraft, QuizQuestion, UserQuiz } from '../lib/quizzesApi'
 import { createQuiz, updateQuiz } from '../lib/quizzesApi'
 
@@ -33,6 +34,7 @@ const initialDraft = (existing: UserQuiz | null): QuizDraft => {
 }
 
 export function QuizEditor({ userId, existing, onSaved, onCancel }: QuizEditorProps) {
+  const { t } = useTranslation()
   const [draft, setDraft] = useState<QuizDraft>(() => initialDraft(existing))
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -72,26 +74,26 @@ export function QuizEditor({ userId, existing, onSaved, onCancel }: QuizEditorPr
 
   const validate = (): string | null => {
     if (!draft.title.trim()) {
-      return 'Sarlavhani kiriting'
+      return t('editor.titleRequired')
     }
 
     if (draft.questions.length === 0) {
-      return 'Kamida bitta savol qo\'shing'
+      return t('editor.addOneQuestion')
     }
 
     for (let i = 0; i < draft.questions.length; i += 1) {
       const question = draft.questions[i]
 
       if (!question.q.trim()) {
-        return `${i + 1}-savol matni bo'sh`
+        return t('editor.questionEmpty', { n: i + 1 })
       }
 
       if (question.a.some((option) => !option.trim())) {
-        return `${i + 1}-savolda barcha 4 javob to'ldirilishi shart`
+        return t('editor.answersRequired', { n: i + 1 })
       }
 
       if (question.c < 0 || question.c > 3) {
-        return `${i + 1}-savolda to'g'ri javobni tanlang`
+        return t('editor.correctRequired', { n: i + 1 })
       }
     }
 
@@ -126,7 +128,7 @@ export function QuizEditor({ userId, existing, onSaved, onCancel }: QuizEditorPr
         : await createQuiz(userId, payload)
       onSaved(saved)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Saqlashda xatolik')
+      setError(err instanceof Error ? err.message : t('editor.saveError'))
     } finally {
       setSaving(false)
     }
@@ -135,30 +137,30 @@ export function QuizEditor({ userId, existing, onSaved, onCancel }: QuizEditorPr
   return (
     <form className="quiz-editor" onSubmit={handleSubmit}>
       <div className="my-quizzes-head">
-        <h1>{existing ? 'Testni tahrirlash' : 'Yangi test'}</h1>
+        <h1>{existing ? t('editor.editTitle') : t('editor.newTitle')}</h1>
         <button type="button" className="auth-button" onClick={onCancel} disabled={saving}>
-          BEKOR QILISH
+          {t('editor.cancel')}
         </button>
       </div>
 
       <label className="editor-field">
-        <span>Sarlavha</span>
+        <span>{t('editor.titleLabel')}</span>
         <input
           type="text"
           value={draft.title}
           onChange={(event) => setDraft((current) => ({ ...current, title: event.target.value }))}
           maxLength={120}
-          placeholder="Masalan: HTML asoslari"
+          placeholder={t('editor.titlePlaceholder')}
         />
       </label>
 
       <label className="editor-field">
-        <span>Tavsif</span>
+        <span>{t('editor.descLabel')}</span>
         <textarea
           value={draft.description}
           onChange={(event) => setDraft((current) => ({ ...current, description: event.target.value }))}
           maxLength={400}
-          placeholder="Qisqa tavsif (ixtiyoriy)"
+          placeholder={t('editor.descPlaceholder')}
           rows={2}
         />
       </label>
@@ -167,24 +169,24 @@ export function QuizEditor({ userId, existing, onSaved, onCancel }: QuizEditorPr
         {draft.questions.map((question, qIndex) => (
           <div key={qIndex} className="editor-question">
             <div className="editor-question-head">
-              <strong>{qIndex + 1}-savol</strong>
+              <strong>{t('editor.questionN', { n: qIndex + 1 })}</strong>
               <button
                 type="button"
                 className="auth-button auth-button--danger"
                 onClick={() => removeQuestion(qIndex)}
                 disabled={draft.questions.length === 1}
               >
-                O'CHIRISH
+                {t('editor.delete')}
               </button>
             </div>
 
             <label className="editor-field">
-              <span>Savol matni</span>
+              <span>{t('editor.questionText')}</span>
               <input
                 type="text"
                 value={question.q}
                 onChange={(event) => updateQuestion(qIndex, { q: event.target.value })}
-                placeholder="Savol matnini kiriting"
+                placeholder={t('editor.questionPlaceholder')}
               />
             </label>
 
@@ -201,7 +203,7 @@ export function QuizEditor({ userId, existing, onSaved, onCancel }: QuizEditorPr
                     type="text"
                     value={option}
                     onChange={(event) => updateOption(qIndex, optIndex, event.target.value)}
-                    placeholder={`Javob ${optIndex + 1}`}
+                    placeholder={t('editor.answerPlaceholder', { n: optIndex + 1 })}
                   />
                 </label>
               ))}
@@ -211,14 +213,14 @@ export function QuizEditor({ userId, existing, onSaved, onCancel }: QuizEditorPr
       </div>
 
       <button type="button" className="auth-button" onClick={addQuestion}>
-        + SAVOL QO'SHISH
+        {t('editor.addQuestion')}
       </button>
 
       {error && <p className="my-quizzes-error">{error}</p>}
 
       <div className="editor-actions">
         <button type="submit" className="auth-button auth-button--primary" disabled={saving}>
-          {saving ? 'SAQLANMOQDA…' : 'SAQLASH'}
+          {saving ? t('editor.saving') : t('editor.save')}
         </button>
       </div>
     </form>

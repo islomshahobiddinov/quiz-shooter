@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { LastEvent, MafiaLobby, MafiaPlayer, MafiaRole } from '../lib/mafiaApi'
 import {
   castVote,
@@ -18,13 +19,6 @@ type Props = {
   onExit: () => void
 }
 
-const ROLE_LABELS: Record<MafiaRole, string> = {
-  mafia: 'MAFIA',
-  citizen: 'FUQARO',
-  doctor: 'DOKTOR',
-  sheriff: 'SHERIFF',
-}
-
 const ROLE_CLASSES: Record<MafiaRole, string> = {
   mafia: 'role-mafia',
   citizen: 'role-citizen',
@@ -37,6 +31,7 @@ function copyToClipboard(text: string) {
 }
 
 export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Props) {
+  const { t } = useTranslation()
   const [lobby, setLobby] = useState(initialLobby)
   const [players, setPlayers] = useState<MafiaPlayer[]>([])
   const [nightActionDone, setNightActionDone] = useState(false)
@@ -51,6 +46,13 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
   const playersRef = useRef(players)
   lobbyRef.current = lobby
   playersRef.current = players
+
+  const ROLE_LABELS: Record<MafiaRole, string> = {
+    mafia: t('roles.mafia'),
+    citizen: t('roles.citizen'),
+    doctor: t('roles.doctor'),
+    sheriff: t('roles.sheriff'),
+  }
 
   useEffect(() => {
     const unsubLobby = subscribeToMafiaLobby(lobby.id, setLobby)
@@ -96,10 +98,10 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
   const allVoted = voteCount >= aliveCount && aliveCount > 0
 
   const handleStart = async () => {
-    if (players.length < 4) { setErr("Kamida 4 o'yinchi kerak"); return }
+    if (players.length < 4) { setErr(t('mafia.minPlayersError')); return }
     setBusy(true); setErr('')
     try { await startMafiaGame(lobby.id, players) }
-    catch (e) { setErr(e instanceof Error ? e.message : 'Xatolik') }
+    catch (e) { setErr(e instanceof Error ? e.message : t('mafia.exit')) }
     finally { setBusy(false) }
   }
 
@@ -110,14 +112,14 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
     try {
       await submitNightAction(lobby.id, myRole, targetId)
       setNightActionDone(true)
-    } catch (e) { setErr(e instanceof Error ? e.message : 'Xatolik') }
+    } catch (e) { setErr(e instanceof Error ? e.message : t('mafia.exit')) }
     finally { setBusy(false) }
   }
 
   const handleStartDayVote = async () => {
     setBusy(true); setErr('')
     try { await startDayVote(lobby.id) }
-    catch (e) { setErr(e instanceof Error ? e.message : 'Xatolik') }
+    catch (e) { setErr(e instanceof Error ? e.message : t('mafia.exit')) }
     finally { setBusy(false) }
   }
 
@@ -127,7 +129,7 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
     try {
       await castVote(lobby.id, myPlayer.id, targetId)
       setMyVote(targetId)
-    } catch (e) { setErr(e instanceof Error ? e.message : 'Xatolik') }
+    } catch (e) { setErr(e instanceof Error ? e.message : t('mafia.exit')) }
     finally { setBusy(false) }
   }
 
@@ -138,7 +140,7 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
     try {
       await resolveVote(lobby.id, players, lobby.roles, lobby.day_votes ?? {}, lobby.round)
     } catch (e) {
-      setErr(e instanceof Error ? e.message : 'Xatolik')
+      setErr(e instanceof Error ? e.message : t('mafia.exit'))
       voteResolvedRef.current = false
     } finally { setBusy(false) }
   }
@@ -159,21 +161,21 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
       <div className="mafia-game">
         <div className="mafia-game-inner">
           <div className="mafia-code-block">
-            <span className="mafia-code-label">LOBBY KODI</span>
+            <span className="mafia-code-label">{t('mafia.lobbyCode')}</span>
             <span className="mafia-code-big">{lobby.code}</span>
             <button type="button" className="mafia-copy-btn" onClick={() => copyToClipboard(lobby.code)}>
-              NUSXA
+              {t('mafia.copy')}
             </button>
           </div>
 
-          <p className="mafia-section-title">O'YINCHILAR ({players.length})</p>
+          <p className="mafia-section-title">{t('mafia.players')} ({players.length})</p>
           <ul className="mafia-player-list">
             {players.map((p) => (
               <li key={p.id} className={p.id === myPlayer.id ? 'is-me' : ''}>
                 {p.username} {p.is_host && <em>★ HOST</em>}
               </li>
             ))}
-            {players.length === 0 && <li className="lobby-empty">Hech kim yo'q</li>}
+            {players.length === 0 && <li className="lobby-empty">{t('mafia.noPlayers')}</li>}
           </ul>
 
           {err && <p className="mafia-error">{err}</p>}
@@ -185,13 +187,13 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
               onClick={handleStart}
               disabled={busy || players.length < 4}
             >
-              {busy ? 'BOSHLANMOQDA…' : `▶ O'YINNI BOSHLASH (min 4)`}
+              {busy ? t('mafia.starting') : t('mafia.startGame')}
             </button>
           ) : (
-            <p className="mafia-waiting">Host o'yinni boshlaguncha kuting…</p>
+            <p className="mafia-waiting">{t('mafia.waitingForHost')}</p>
           )}
 
-          <button type="button" className="mafia-exit-btn" onClick={onExit}>CHIQISH</button>
+          <button type="button" className="mafia-exit-btn" onClick={onExit}>{t('mafia.exit')}</button>
         </div>
       </div>
     )
@@ -204,10 +206,10 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
       <div className="mafia-game mafia-game--over">
         <div className="mafia-game-inner">
           <h1 className={`mafia-winner-title ${isMafiaWin ? 'mafia-winner--red' : 'mafia-winner--cyan'}`}>
-            {isMafiaWin ? '🔴 MAFIA G\'ALABA QOZONDI' : '🏆 SHAHAR G\'ALABA QOZONDI'}
+            {isMafiaWin ? t('mafia.mafiaWon') : t('mafia.cityWon')}
           </h1>
 
-          <p className="mafia-section-title">BARCHA ROLLAR</p>
+          <p className="mafia-section-title">{t('mafia.allRoles')}</p>
           <ul className="mafia-player-list mafia-player-list--roles">
             {players.map((p) => {
               const role = lobby.roles[p.id] as MafiaRole | undefined
@@ -218,15 +220,15 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
                   </span>
                   {' — '}
                   {p.username}
-                  {!p.is_alive && <em> (halok)</em>}
-                  {p.id === myPlayer.id && <em> (siz)</em>}
+                  {!p.is_alive && <em> {t('mafia.dead')}</em>}
+                  {p.id === myPlayer.id && <em> {t('mafia.you')}</em>}
                 </li>
               )
             })}
           </ul>
 
           <button type="button" className="mafia-btn mafia-btn--primary" onClick={onExit}>
-            BOSH SAHIFAGA
+            {t('mafia.backToMain')}
           </button>
         </div>
       </div>
@@ -245,13 +247,13 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
       <div className="mafia-game mafia-game--night">
         <div className="mafia-game-inner">
           <div className="mafia-phase-header">
-            <span className="mafia-phase-label">TUN</span>
-            <span className="mafia-round-label">AYLANA {lobby.round}</span>
+            <span className="mafia-phase-label">{t('mafia.night')}</span>
+            <span className="mafia-round-label">{t('mafia.round')} {lobby.round}</span>
           </div>
 
           {myRole && (
             <div className={`mafia-my-role ${ROLE_CLASSES[myRole]}`}>
-              SIZNING ROLINGIZ: <strong>{ROLE_LABELS[myRole]}</strong>
+              {t('mafia.yourRole')}: <strong>{ROLE_LABELS[myRole]}</strong>
             </div>
           )}
 
@@ -259,14 +261,14 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
             <>
               {mafiaTeam.length > 1 && (
                 <p className="mafia-team-info">
-                  Mafia jamoasi: {mafiaTeam.filter(p => p.id !== myPlayer.id).map(p => p.username).join(', ')}
+                  {t('mafia.mafiaTeam')}: {mafiaTeam.filter(p => p.id !== myPlayer.id).map(p => p.username).join(', ')}
                 </p>
               )}
               {nightActionDone ? (
-                <p className="mafia-done-msg">✓ Nishon tanlandi. Boshqalar kutilmoqda…</p>
+                <p className="mafia-done-msg">{t('mafia.targetSelected')}</p>
               ) : (
                 <>
-                  <p className="mafia-action-prompt">Kim ni o'ldirish kerak?</p>
+                  <p className="mafia-action-prompt">{t('mafia.whoToKill')}</p>
                   <ul className="mafia-target-list">
                     {nonMafiaAlive.map((p) => (
                       <li key={p.id}>
@@ -288,10 +290,10 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
 
           {myRole === 'doctor' && (
             nightActionDone ? (
-              <p className="mafia-done-msg">✓ Himoyalandi. Boshqalar kutilmoqda…</p>
+              <p className="mafia-done-msg">{t('mafia.protected')}</p>
             ) : (
               <>
-                <p className="mafia-action-prompt">Kimni himoya qilasiz?</p>
+                <p className="mafia-action-prompt">{t('mafia.whoToProtect')}</p>
                 <ul className="mafia-target-list">
                   {alivePlayers.map((p) => (
                     <li key={p.id}>
@@ -301,7 +303,7 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
                         onClick={() => handleNightAction(p.id)}
                         disabled={busy}
                       >
-                        {p.username} {p.id === myPlayer.id ? '(siz)' : ''}
+                        {p.username} {p.id === myPlayer.id ? t('mafia.you') : ''}
                       </button>
                     </li>
                   ))}
@@ -312,12 +314,10 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
 
           {myRole === 'sheriff' && (
             nightActionDone ? (
-              <>
-                <p className="mafia-done-msg">✓ Tekshirildi. Natija erta tong ko'rinadi.</p>
-              </>
+              <p className="mafia-done-msg">{t('mafia.checked')}</p>
             ) : (
               <>
-                <p className="mafia-action-prompt">Kimni tekshirmoqchisiz?</p>
+                <p className="mafia-action-prompt">{t('mafia.whoToCheck')}</p>
                 <ul className="mafia-target-list">
                   {alivePlayers.filter(p => p.id !== myPlayer.id).map((p) => (
                     <li key={p.id}>
@@ -338,8 +338,8 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
 
           {myRole === 'citizen' && (
             <div className="mafia-sleep">
-              <p>😴 Uxlayapsiz…</p>
-              <p className="mafia-sleep-sub">Mafia ish boshladi. Erta tong kuting.</p>
+              <p>{t('mafia.sleeping')}</p>
+              <p className="mafia-sleep-sub">{t('mafia.mafiaStarted')}</p>
             </div>
           )}
 
@@ -360,28 +360,28 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
       <div className="mafia-game mafia-game--reveal">
         <div className="mafia-game-inner">
           <div className="mafia-phase-header">
-            <span className="mafia-phase-label">ERTA TONG</span>
-            <span className="mafia-round-label">AYLANA {lobby.round}</span>
+            <span className="mafia-phase-label">{t('mafia.dawn')}</span>
+            <span className="mafia-round-label">{t('mafia.round')} {lobby.round}</span>
           </div>
 
           <div className="mafia-reveal-box">
             {killedName ? (
               <>
-                <p className="mafia-reveal-killed">💀 {killedName} halok bo'ldi</p>
-                <p className="mafia-reveal-sub">Kecha tunda {killedName} o'ldirildi.</p>
+                <p className="mafia-reveal-killed">💀 {killedName} {t('mafia.died')}</p>
+                <p className="mafia-reveal-sub">{killedName} {t('mafia.killedLastNight')}.</p>
               </>
             ) : (
               <>
-                <p className="mafia-reveal-safe">✨ Hech kim halok bo'lmadi</p>
-                <p className="mafia-reveal-sub">Doktor barini qutqardi yoki mafia nishon almadi.</p>
+                <p className="mafia-reveal-safe">{t('mafia.noDead')}</p>
+                <p className="mafia-reveal-sub">{t('mafia.doctorSaved')}</p>
               </>
             )}
           </div>
 
           {sheriffResult && (
             <div className={`mafia-sheriff-result ${sheriffResult.isMafia ? 'is-mafia' : 'is-innocent'}`}>
-              Sheriff natijasi: <strong>{sheriffResult.name}</strong> —{' '}
-              {sheriffResult.isMafia ? '🔴 MAFIA!' : '✅ BEGUNOH'}
+              {t('mafia.sheriffResult')}: <strong>{sheriffResult.name}</strong> —{' '}
+              {sheriffResult.isMafia ? t('mafia.isMafia') : t('mafia.isInnocent')}
             </div>
           )}
 
@@ -394,10 +394,10 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
               onClick={handleStartDayVote}
               disabled={busy}
             >
-              MUHOKAMAGA O'TISH →
+              {t('mafia.goToDiscussion')}
             </button>
           ) : (
-            <p className="mafia-waiting">Host muhokamani boshlaguncha kuting…</p>
+            <p className="mafia-waiting">{t('mafia.waitingForDiscussion')}</p>
           )}
         </div>
       </div>
@@ -413,16 +413,16 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
       <div className="mafia-game mafia-game--vote">
         <div className="mafia-game-inner">
           <div className="mafia-phase-header">
-            <span className="mafia-phase-label">MUHOKAMA</span>
-            <span className="mafia-round-label">AYLANA {lobby.round}</span>
+            <span className="mafia-phase-label">{t('mafia.discussion')}</span>
+            <span className="mafia-round-label">{t('mafia.round')} {lobby.round}</span>
           </div>
 
           <p className="mafia-action-prompt">
             {amAlive
               ? myVote
-                ? `✓ Ovoz berdingiz: ${getPlayerName(myVote)}`
-                : 'Kim chiqib ketishi kerak? Ovoz bering:'
-              : 'Siz halok bo\'ldingiz. Kuzatmoqdasiz.'}
+                ? `${t('mafia.youVoted')}: ${getPlayerName(myVote)}`
+                : t('mafia.whoShouldLeave')
+              : t('mafia.youAreDead')}
           </p>
 
           <ul className="mafia-target-list">
@@ -438,8 +438,8 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
                     onClick={() => !isSelf && handleVote(p.id)}
                     disabled={busy || !!myVote || !amAlive || isSelf}
                   >
-                    {p.username} {isSelf && '(siz)'}
-                    {votes > 0 && <span className="mafia-vote-count">{votes} ovoz</span>}
+                    {p.username} {isSelf && t('mafia.you')}
+                    {votes > 0 && <span className="mafia-vote-count">{votes} {t('mafia.votes')}</span>}
                   </button>
                 </li>
               )
@@ -447,7 +447,7 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
           </ul>
 
           <p className="mafia-vote-progress">
-            Ovoz berganlar: {voteCount} / {aliveCount}
+            {t('mafia.votesOf')}: {voteCount} / {aliveCount}
           </p>
 
           {err && <p className="mafia-error">{err}</p>}
@@ -459,7 +459,7 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
               onClick={handleResolveVote}
               disabled={busy || !allVoted}
             >
-              {allVoted ? 'OVOZLARNI YAKUNLASH →' : `Kutilmoqda… (${voteCount}/${aliveCount})`}
+              {allVoted ? t('mafia.finalizeVotes') : `${t('mafia.waitingVotes')} (${voteCount}/${aliveCount})`}
             </button>
           )}
         </div>
