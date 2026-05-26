@@ -1403,6 +1403,53 @@
   margin: 0;
 }
 
+.mafia-vote-log {
+  margin-top: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 10px 14px;
+  text-align: left;
+}
+
+.mafia-vote-log-title {
+  color: #8aa1c5;
+  font-size: 12px;
+  margin: 0 0 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.mafia-vote-log-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mafia-vote-log-item {
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mafia-vote-log-voter {
+  color: #c0cfea;
+  font-weight: 500;
+}
+
+.mafia-vote-log-arrow {
+  color: #8aa1c5;
+}
+
+.mafia-vote-log-target {
+  color: #ff8aa0;
+  font-weight: 600;
+}
+
 .mafia-done-msg {
   color: #66ff99;
   font-size: 14px;

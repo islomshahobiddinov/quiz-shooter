@@ -133,6 +133,8 @@
     "youAreDead": "Siz halok bo'ldingiz. Kuzatmoqdasiz.",
     "votes": "ovoz",
     "votesOf": "Ovoz berganlar",
+    "voteLog": "Kim kimga ovoz berdi:",
+    "votedFor": "→",
     "finalizeVotes": "OVOZLARNI YAKUNLASH →",
     "waitingVotes": "Kutilmoqda…",
     "minPlayersError": "Kamida 4 o'yinchi kerak",

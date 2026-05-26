@@ -509,6 +509,21 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
             {t('mafia.votesOf')}: {voteCount} / {aliveCount}
           </p>
 
+          {Object.keys(lobby.day_votes ?? {}).length > 0 && (
+            <div className="mafia-vote-log">
+              <p className="mafia-vote-log-title">{t('mafia.voteLog')}</p>
+              <ul className="mafia-vote-log-list">
+                {Object.entries(lobby.day_votes ?? {}).map(([voterId, targetId]) => (
+                  <li key={voterId} className="mafia-vote-log-item">
+                    <span className="mafia-vote-log-voter">{getPlayerName(voterId)}</span>
+                    <span className="mafia-vote-log-arrow"> {t('mafia.votedFor')} </span>
+                    <span className="mafia-vote-log-target">{getPlayerName(targetId)}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           {err && <p className="mafia-error">{err}</p>}
 
           {isHost && (
