@@ -131,7 +131,13 @@
     "votesOf": "Ovoz berganlar",
     "finalizeVotes": "OVOZLARNI YAKUNLASH →",
     "waitingVotes": "Kutilmoqda…",
-    "minPlayersError": "Kamida 4 o'yinchi kerak"
+    "minPlayersError": "Kamida 4 o'yinchi kerak",
+    "kick": "Chiqarib yuborish",
+    "sheriffCheck": "TEKSHIRISH",
+    "sheriffShoot": "OTISH",
+    "whoToShoot": "Kimni otmoqchisiz?",
+    "shot": "✓ Otildi. Natija erta tong ko'rinadi.",
+    "sheriffKilledMsg": "sheriff tomonidan otildi"
   },
   "mafiaLobby": {
     "back": "← ORQAGA",

@@ -131,7 +131,13 @@
     "votesOf": "Проголосовали",
     "finalizeVotes": "ЗАВЕРШИТЬ ГОЛОСОВАНИЕ →",
     "waitingVotes": "Ожидание…",
-    "minPlayersError": "Нужно минимум 4 игрока"
+    "minPlayersError": "Нужно минимум 4 игрока",
+    "kick": "Выгнать",
+    "sheriffCheck": "ПРОВЕРИТЬ",
+    "sheriffShoot": "ЗАСТРЕЛИТЬ",
+    "whoToShoot": "Кого застрелите?",
+    "shot": "✓ Застрелен. Результат будет на рассвете.",
+    "sheriffKilledMsg": "застрелен шерифом"
   },
   "mafiaLobby": {
     "back": "← НАЗАД",

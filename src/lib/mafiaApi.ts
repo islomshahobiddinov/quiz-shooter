@@ -8,6 +8,7 @@ export type NightActions = {
   mafiaTarget?: string
   doctorTarget?: string
   sheriffTarget?: string
+  sheriffShootTarget?: string
 }
 
 export type LastEvent = {
@@ -15,6 +16,7 @@ export type LastEvent = {
   eliminated: string | null
   sheriffTarget?: string
   sheriffIsMafia?: boolean
+  sheriffKilled?: string | null
 }
 
 export type MafiaLobby = {
@@ -83,6 +85,16 @@ export async function getMafiaLobby(id: string): Promise<MafiaLobby | null> {
   return data as MafiaLobby | null
 }
 
+export async function kickMafiaPlayer(playerId: string): Promise<void> {
+  const { error } = await supabase.from('mafia_players').delete().eq('id', playerId)
+  if (error) throw error
+}
+
+export async function leaveMafiaLobby(playerId: string): Promise<void> {
+  const { error } = await supabase.from('mafia_players').delete().eq('id', playerId)
+  if (error) throw error
+}
+
 export async function joinMafiaLobby(lobbyId: string, username: string): Promise<MafiaPlayer> {
   const { data, error } = await supabase
     .from('mafia_players')
@@ -137,13 +149,14 @@ export async function startMafiaGame(
 
 export async function submitNightAction(
   lobbyId: string,
-  role: MafiaRole,
+  role: MafiaRole | 'sheriff_shoot',
   targetId: string,
 ): Promise<void> {
   const patch: Record<string, string> = {}
   if (role === 'mafia') patch.mafiaTarget = targetId
   if (role === 'doctor') patch.doctorTarget = targetId
   if (role === 'sheriff') patch.sheriffTarget = targetId
+  if (role === 'sheriff_shoot') patch.sheriffShootTarget = targetId
 
   const { error } = await supabase.rpc('merge_mafia_night_action', {
     p_lobby_id: lobbyId,
@@ -166,7 +179,7 @@ export function checkAllNightActionsReady(
   return (
     (!hasMafia || !!actions.mafiaTarget) &&
     (!hasDoctor || !!actions.doctorTarget) &&
-    (!hasSheriff || !!actions.sheriffTarget)
+    (!hasSheriff || !!actions.sheriffTarget || !!actions.sheriffShootTarget)
   )
 }
 
@@ -192,15 +205,24 @@ export async function resolveNight(
   const saved = actions.doctorTarget ?? null
   const actuallyKilled = killed && killed !== saved ? killed : null
 
+  const sheriffShootTarget = actions.sheriffShootTarget ?? null
+  const sheriffActuallyKilled =
+    sheriffShootTarget && sheriffShootTarget !== saved && sheriffShootTarget !== actuallyKilled
+      ? sheriffShootTarget
+      : null
+
   const sheriffTarget = actions.sheriffTarget ?? null
   const sheriffIsMafia = sheriffTarget ? roles[sheriffTarget] === 'mafia' : undefined
 
   if (actuallyKilled) {
     await supabase.from('mafia_players').update({ is_alive: false }).eq('id', actuallyKilled)
   }
+  if (sheriffActuallyKilled) {
+    await supabase.from('mafia_players').update({ is_alive: false }).eq('id', sheriffActuallyKilled)
+  }
 
   const updatedPlayers = players.map((p) =>
-    p.id === actuallyKilled ? { ...p, is_alive: false } : p,
+    p.id === actuallyKilled || p.id === sheriffActuallyKilled ? { ...p, is_alive: false } : p,
   )
   const winner = checkWinner(updatedPlayers, roles)
 
@@ -209,6 +231,7 @@ export async function resolveNight(
     eliminated: null,
     sheriffTarget: sheriffTarget ?? undefined,
     sheriffIsMafia,
+    sheriffKilled: sheriffActuallyKilled,
   }
 
   if (winner) {
