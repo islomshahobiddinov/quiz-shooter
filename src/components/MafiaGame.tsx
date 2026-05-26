@@ -10,6 +10,7 @@ import {
   resolveVote,
   startDayVote,
   startMafiaGame,
+  startNextNight,
   submitNightAction,
   subscribeToMafiaLobby,
   subscribeToMafiaPlayers,
@@ -519,6 +520,64 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
             >
               {allVoted ? t('mafia.finalizeVotes') : `${t('mafia.waitingVotes')} (${voteCount}/${aliveCount})`}
             </button>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  // VOTE REVEAL PHASE
+  if (lobby.phase === 'vote_reveal') {
+    const eliminatedId = (lobby.last_event as LastEvent | null)?.eliminated ?? null
+    const eliminatedName = eliminatedId ? getPlayerName(eliminatedId) : null
+    const eliminatedRole = eliminatedId ? (lobby.roles[eliminatedId] as MafiaRole | undefined) : undefined
+
+    const handleNextNight = async () => {
+      setBusy(true); setErr('')
+      try { await startNextNight(lobby.id) }
+      catch (e) { setErr(e instanceof Error ? e.message : t('mafia.exit')) }
+      finally { setBusy(false) }
+    }
+
+    return (
+      <div className="mafia-game mafia-game--reveal">
+        <div className="mafia-game-inner">
+          <div className="mafia-phase-header">
+            <span className="mafia-phase-label">{t('mafia.voteResult')}</span>
+            <span className="mafia-round-label">{t('mafia.round')} {lobby.round - 1}</span>
+          </div>
+
+          <div className="mafia-reveal-box">
+            {eliminatedName ? (
+              <>
+                <p className="mafia-reveal-killed">🗳️ {eliminatedName} {t('mafia.eliminated')}</p>
+                {eliminatedRole && (
+                  <p className="mafia-reveal-sub">
+                    {t('mafia.theirRole')}: <span className={ROLE_CLASSES[eliminatedRole]}>{ROLE_LABELS[eliminatedRole]}</span>
+                  </p>
+                )}
+              </>
+            ) : (
+              <>
+                <p className="mafia-reveal-safe">{t('mafia.voteTie')}</p>
+                <p className="mafia-reveal-sub">{t('mafia.voteTieSub')}</p>
+              </>
+            )}
+          </div>
+
+          {err && <p className="mafia-error">{err}</p>}
+
+          {isHost ? (
+            <button
+              type="button"
+              className="mafia-btn mafia-btn--primary"
+              onClick={handleNextNight}
+              disabled={busy}
+            >
+              {t('mafia.goToNight')}
+            </button>
+          ) : (
+            <p className="mafia-waiting">{t('mafia.waitingForNight')}</p>
           )}
         </div>
       </div>

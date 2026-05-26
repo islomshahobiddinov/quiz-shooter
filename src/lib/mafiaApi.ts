@@ -1,7 +1,7 @@
 import { supabase } from './supabase'
 
 export type MafiaRole = 'mafia' | 'citizen' | 'doctor' | 'sheriff'
-export type MafiaPhase = 'night' | 'day_reveal' | 'day_vote' | null
+export type MafiaPhase = 'night' | 'day_reveal' | 'day_vote' | 'vote_reveal' | null
 export type MafiaStatus = 'waiting' | 'playing' | 'finished'
 
 export type NightActions = {
@@ -317,12 +317,20 @@ export async function resolveVote(
     }).eq('id', lobbyId)
   } else {
     await supabase.from('mafia_lobbies').update({
-      phase: 'night',
+      phase: 'vote_reveal',
       round: currentRound + 1,
       day_votes: {},
       last_event: lastEvent,
     }).eq('id', lobbyId)
   }
+}
+
+export async function startNextNight(lobbyId: string): Promise<void> {
+  const { error } = await supabase
+    .from('mafia_lobbies')
+    .update({ phase: 'night', night_actions: {} })
+    .eq('id', lobbyId)
+  if (error) throw error
 }
 
 type Cleanup = () => void
