@@ -34,6 +34,7 @@ import type { CheckersDifficulty } from './lib/checkersLogic'
 import { CheckersBotGame } from './components/CheckersBotGame'
 import { CheckersGame } from './components/CheckersGame'
 import { CheckersPage } from './pages/CheckersPage'
+import { NotFoundPage } from './pages/NotFoundPage'
 import './App.css'
 
 const topics = quizzes as QuizTopic[]
@@ -421,7 +422,7 @@ function App() {
                 />
               }
             />
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </div>
       </section>

@@ -16,6 +16,10 @@
     "soundOn": "Ovozni yoqish",
     "sound": "OVOZ"
   },
+  "notFound": {
+    "message": "Sahifa topilmadi",
+    "home": "BOSH SAHIFAGA"
+  },
   "gameOver": {
     "won": "TUGADI! 🏆",
     "lost": "GAME OVER",
