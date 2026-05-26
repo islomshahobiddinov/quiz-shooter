@@ -48,7 +48,7 @@ const emptyHud: ShooterProgress = {
 
 function App() {
   const { t } = useTranslation()
-  const { session, signInWithGoogle, signOut } = useAuth()
+  const { session, loading: authLoading, signInWithGoogle, signOut } = useAuth()
   const user = session?.user ?? null
   const userLabel =
     (user?.user_metadata?.full_name as string | undefined) ||
@@ -248,6 +248,8 @@ function App() {
 
   const livesText = `${'♥'.repeat(Math.max(0, hud.lives))}${'♡'.repeat(Math.max(0, 3 - hud.lives))}`
   const totalQuestions = selectedTopic?.questions.length ?? 0
+
+  if (authLoading) return <div className="auth-loading" />
 
   // Full-screen takeovers (before any layout)
   if (activeCheckersBotGame) {
