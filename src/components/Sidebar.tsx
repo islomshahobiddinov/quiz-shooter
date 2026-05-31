@@ -1,4 +1,5 @@
-import { NavLink } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { NavLink, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import type { User } from '@supabase/supabase-js'
 
@@ -77,6 +78,21 @@ function IconGoogle() {
 
 export function Sidebar({ user, userLabel, onSignIn, onSignOut }: SidebarProps) {
   const { t, i18n } = useTranslation()
+  const location = useLocation()
+  const [isOpen, setIsOpen] = useState(false)
+
+  useEffect(() => {
+    setIsOpen(false)
+  }, [location.pathname])
+
+  useEffect(() => {
+    if (!isOpen) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsOpen(false)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [isOpen])
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     `sidebar-link${isActive ? ' is-active' : ''}`
@@ -86,66 +102,92 @@ export function Sidebar({ user, userLabel, onSignIn, onSignOut }: SidebarProps) 
     localStorage.setItem('edu-mars:lang', lang)
   }
 
+  const handleNavClick = () => setIsOpen(false)
+
   return (
-    <aside className="sidebar">
-      <div className="sidebar-header">
-        <span className="sidebar-brand">EDU MARS</span>
-        {user && <span className="sidebar-user" title={userLabel}>{userLabel}</span>}
-      </div>
+    <>
+      <button
+        type="button"
+        className="sidebar-toggle"
+        aria-label={isOpen ? 'Yopish' : 'Menyu'}
+        aria-expanded={isOpen}
+        onClick={() => setIsOpen((v) => !v)}
+      >
+        <span className={`sidebar-toggle-icon${isOpen ? ' is-open' : ''}`}>
+          <span />
+          <span />
+          <span />
+        </span>
+      </button>
 
-      <nav className="sidebar-nav">
-        <NavLink to="/" end className={linkClass}>
-          <IconQuiz />
-          {t('nav.tests')}
-        </NavLink>
-        {user && (
-          <NavLink to="/my-quizzes" className={linkClass}>
-            <IconMyQuizzes />
-            {t('nav.myTests')}
-          </NavLink>
-        )}
-        <NavLink to="/checkers" className={linkClass}>
-          <IconCheckers />
-          {t('nav.checkers')}
-        </NavLink>
-        <NavLink to="/tictactoe" className={linkClass}>
-          <IconTtt />
-          {t('nav.tictactoe')}
-        </NavLink>
-        <NavLink to="/mafia" className={linkClass}>
-          <IconMafia />
-          {t('nav.mafiaGame')}
-        </NavLink>
-      </nav>
+      {isOpen && (
+        <div
+          className="sidebar-backdrop"
+          onClick={() => setIsOpen(false)}
+          aria-hidden="true"
+        />
+      )}
 
-      <div className="sidebar-footer">
-        <div className="lang-switcher">
-          <button
-            type="button"
-            className={`lang-btn${i18n.language === 'uz' ? ' is-active' : ''}`}
-            onClick={() => switchLang('uz')}
-          >
-            UZ
-          </button>
-          <button
-            type="button"
-            className={`lang-btn${i18n.language === 'ru' ? ' is-active' : ''}`}
-            onClick={() => switchLang('ru')}
-          >
-            RU
-          </button>
+      <aside className={`sidebar${isOpen ? ' is-open' : ''}`}>
+        <div className="sidebar-header">
+          <span className="sidebar-brand">EDU MARS</span>
+          {user && <span className="sidebar-user" title={userLabel}>{userLabel}</span>}
         </div>
-        {user ? (
-          <button type="button" className="sidebar-signout" onClick={onSignOut}>
-            {t('nav.signOut')}
-          </button>
-        ) : (
-          <button type="button" className="sidebar-signin" onClick={onSignIn}>
-            <IconGoogle />
-            {t('nav.signIn')}
-          </button>
-        )}
-      </div>
-    </aside>
+
+        <nav className="sidebar-nav">
+          <NavLink to="/" end className={linkClass} onClick={handleNavClick}>
+            <IconQuiz />
+            {t('nav.tests')}
+          </NavLink>
+          {user && (
+            <NavLink to="/my-quizzes" className={linkClass} onClick={handleNavClick}>
+              <IconMyQuizzes />
+              {t('nav.myTests')}
+            </NavLink>
+          )}
+          <NavLink to="/checkers" className={linkClass} onClick={handleNavClick}>
+            <IconCheckers />
+            {t('nav.checkers')}
+          </NavLink>
+          <NavLink to="/tictactoe" className={linkClass} onClick={handleNavClick}>
+            <IconTtt />
+            {t('nav.tictactoe')}
+          </NavLink>
+          <NavLink to="/mafia" className={linkClass} onClick={handleNavClick}>
+            <IconMafia />
+            {t('nav.mafiaGame')}
+          </NavLink>
+        </nav>
+
+        <div className="sidebar-footer">
+          <div className="lang-switcher">
+            <button
+              type="button"
+              className={`lang-btn${i18n.language === 'uz' ? ' is-active' : ''}`}
+              onClick={() => switchLang('uz')}
+            >
+              UZ
+            </button>
+            <button
+              type="button"
+              className={`lang-btn${i18n.language === 'ru' ? ' is-active' : ''}`}
+              onClick={() => switchLang('ru')}
+            >
+              RU
+            </button>
+          </div>
+          {user ? (
+            <button type="button" className="sidebar-signout" onClick={onSignOut}>
+              {t('nav.signOut')}
+            </button>
+          ) : (
+            <button type="button" className="sidebar-signin" onClick={onSignIn}>
+              <IconGoogle />
+              {t('nav.signIn')}
+            </button>
+          )}
+        </div>
+      </aside>
+    </>
   )
 }
