@@ -1339,12 +1339,9 @@
 
 /* Full-screen game */
 .mafia-game {
-  align-items: center;
   background: #0a0e1a;
   color: #7fffd4;
-  display: flex;
   font-family: 'Courier New', monospace;
-  justify-content: center;
   min-height: 100svh;
   overflow-y: auto;
   padding: 32px 20px;
@@ -1370,6 +1367,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  margin: 0 auto;
   max-width: 520px;
   width: 100%;
 }
@@ -1477,6 +1475,12 @@
 .mafia-vote-count {
   color: #ff8aa0;
   font-size: 12px;
+}
+
+.mafia-vote-inline {
+  color: #ffe066;
+  font-size: 11px;
+  opacity: 0.85;
 }
 
 .mafia-vote-progress {

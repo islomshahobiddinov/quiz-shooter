@@ -489,6 +489,8 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
               const votes = tally[p.id] ?? 0
               const isTarget = myVote === p.id
               const isSelf = p.id === myPlayer.id
+              const votedForId = lobby.day_votes?.[p.id]
+              const votedForName = votedForId ? getPlayerName(votedForId) : null
               return (
                 <li key={p.id}>
                   <button
@@ -497,8 +499,11 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
                     onClick={() => !isSelf && handleVote(p.id)}
                     disabled={busy || !!myVote || !amAlive || isSelf}
                   >
-                    {p.username} {isSelf && t('mafia.you')}
-                    {votes > 0 && <span className="mafia-vote-count">{votes} {t('mafia.votes')}</span>}
+                    <span>{p.username} {isSelf && t('mafia.you')}</span>
+                    <span style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      {votedForName && <span className="mafia-vote-inline">→ {votedForName}</span>}
+                      {votes > 0 && <span className="mafia-vote-count">{votes} {t('mafia.votes')}</span>}
+                    </span>
                   </button>
                 </li>
               )
@@ -508,21 +513,6 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
           <p className="mafia-vote-progress">
             {t('mafia.votesOf')}: {voteCount} / {aliveCount}
           </p>
-
-          {Object.keys(lobby.day_votes ?? {}).length > 0 && (
-            <div className="mafia-vote-log">
-              <p className="mafia-vote-log-title">{t('mafia.voteLog')}</p>
-              <ul className="mafia-vote-log-list">
-                {Object.entries(lobby.day_votes ?? {}).map(([voterId, targetId]) => (
-                  <li key={voterId} className="mafia-vote-log-item">
-                    <span className="mafia-vote-log-voter">{getPlayerName(voterId)}</span>
-                    <span className="mafia-vote-log-arrow"> {t('mafia.votedFor')} </span>
-                    <span className="mafia-vote-log-target">{getPlayerName(targetId)}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
 
           {err && <p className="mafia-error">{err}</p>}
 
