@@ -4,14 +4,12 @@ import type { UserQuiz } from '../lib/quizzesApi'
 import { deleteQuiz, listMyQuizzes } from '../lib/quizzesApi'
 
 type MyQuizzesProps = {
-  onPlay: (quiz: UserQuiz) => void
   onEdit: (quiz: UserQuiz) => void
   onCreate: () => void
-  onOpenLobby: (quiz: UserQuiz) => void
   refreshKey: number
 }
 
-export function MyQuizzes({ onPlay, onEdit, onCreate, onOpenLobby, refreshKey }: MyQuizzesProps) {
+export function MyQuizzes({ onEdit, onCreate, refreshKey }: MyQuizzesProps) {
   const { t } = useTranslation()
   const [quizzes, setQuizzes] = useState<UserQuiz[]>([])
   const [loading, setLoading] = useState(true)
@@ -37,18 +35,12 @@ export function MyQuizzes({ onPlay, onEdit, onCreate, onOpenLobby, refreshKey }:
         }
       })
 
-    return () => {
-      cancelled = true
-    }
+    return () => { cancelled = true }
   }, [refreshKey]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleDelete = async (quiz: UserQuiz) => {
-    if (!window.confirm(t('myQuizzes.confirmDelete', { title: quiz.title }))) {
-      return
-    }
-
+    if (!window.confirm(t('myQuizzes.confirmDelete', { title: quiz.title }))) return
     setDeletingId(quiz.id)
-
     try {
       await deleteQuiz(quiz.id)
       setQuizzes((current) => current.filter((item) => item.id !== quiz.id))
@@ -80,24 +72,10 @@ export function MyQuizzes({ onPlay, onEdit, onCreate, onOpenLobby, refreshKey }:
           <article key={quiz.id} className="topic-card topic-card--mine">
             <span>{quiz.title}</span>
             <small>{quiz.description || ' '}</small>
-            <strong>{quiz.questions.length} {t('myQuizzes.questions')}</strong>
+            <strong>
+              {quiz.questions.length} {t('myQuizzes.questions')}
+            </strong>
             <div className="quiz-card-actions">
-              <button
-                type="button"
-                className="auth-button auth-button--primary"
-                onClick={() => onPlay(quiz)}
-                disabled={quiz.questions.length === 0}
-              >
-                {t('myQuizzes.play')}
-              </button>
-              <button
-                type="button"
-                className="auth-button"
-                onClick={() => onOpenLobby(quiz)}
-                disabled={quiz.questions.length === 0}
-              >
-                {t('myQuizzes.lobby')}
-              </button>
               <button type="button" className="auth-button" onClick={() => onEdit(quiz)}>
                 {t('myQuizzes.edit')}
               </button>

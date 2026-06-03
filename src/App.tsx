@@ -1,18 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
-import quizzes from './quizzes.json'
+import { useEffect, useState } from 'react'
+import { Navigate, Route, Routes } from 'react-router-dom'
 import { useAuth } from './lib/useAuth'
-import type { QuizTopic } from './lib/quizzesApi'
-import type { Lobby, LobbyPlayer } from './lib/lobbiesApi'
-import { getLobby } from './lib/lobbiesApi'
-import { clearLobbySession, loadLobbySession, saveLobbySession } from './lib/lobbySession'
 import { Sidebar } from './components/Sidebar'
-import { ShooterCanvas } from './components/ShooterCanvas'
-import type { ShooterFinished, ShooterProgress } from './components/ShooterCanvas'
-import { LobbyCreateDialog } from './components/LobbyCreateDialog'
-import { LobbyJoinDialog } from './components/LobbyJoinDialog'
-import { LobbyView } from './components/LobbyView'
 import { MafiaGame } from './components/MafiaGame'
 import type { MafiaLobby, MafiaPlayer } from './lib/mafiaApi'
 import { getMafiaLobby } from './lib/mafiaApi'
@@ -23,7 +12,6 @@ import { clearTttSession, loadTttSession, saveTttSession } from './lib/tictactoe
 import { TicTacToeGame } from './components/TicTacToeGame'
 import type { BotDifficulty } from './components/TicTacToeBotGame'
 import { TicTacToeBotGame } from './components/TicTacToeBotGame'
-import { TopicsPage } from './pages/TopicsPage'
 import { MafiaPage } from './pages/MafiaPage'
 import { MyQuizzesPage } from './pages/MyQuizzesPage'
 import { TicTacToePage } from './pages/TicTacToePage'
@@ -34,20 +22,15 @@ import type { CheckersDifficulty } from './lib/checkersLogic'
 import { CheckersBotGame } from './components/CheckersBotGame'
 import { CheckersGame } from './components/CheckersGame'
 import { CheckersPage } from './pages/CheckersPage'
+import type { BattleLobby, BattlePlayer } from './lib/battleApi'
+import { getBattleLobby } from './lib/battleApi'
+import { clearBattleSession, loadBattleSession, saveBattleSession } from './lib/battleSession'
+import { BattleGame } from './components/BattleGame'
+import { BattlePage } from './pages/BattlePage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import './App.css'
 
-const topics = quizzes as QuizTopic[]
-
-const emptyHud: ShooterProgress = {
-  question: '',
-  questionNumber: 1,
-  score: 0,
-  lives: 3,
-}
-
 function App() {
-  const { t } = useTranslation()
   const { session, loading: authLoading, signInWithGoogle, signOut } = useAuth()
   const user = session?.user ?? null
   const userLabel =
@@ -56,19 +39,7 @@ function App() {
     user?.email ||
     ''
 
-  const location = useLocation()
   const [soundEnabled, setSoundEnabled] = useState(true)
-
-  // Solo gameplay
-  const [selectedTopic, setSelectedTopic] = useState<QuizTopic | null>(null)
-  const [resetSignal, setResetSignal] = useState(0)
-  const [hud, setHud] = useState<ShooterProgress>(emptyHud)
-  const [finished, setFinished] = useState<ShooterFinished | null>(null)
-
-  // Quiz lobby state
-  const [createLobbyQuiz, setCreateLobbyQuiz] = useState<QuizTopic | null>(null)
-  const [joinDialogOpen, setJoinDialogOpen] = useState(false)
-  const [activeLobby, setActiveLobby] = useState<{ lobby: Lobby; player: LobbyPlayer } | null>(null)
 
   // Mafia state
   const [activeMafiaLobby, setActiveMafiaLobby] = useState<{ lobby: MafiaLobby; player: MafiaPlayer } | null>(null)
@@ -81,16 +52,10 @@ function App() {
   const [activeCheckersLobby, setActiveCheckersLobby] = useState<{ lobby: CheckersLobby; player: CheckersPlayer } | null>(null)
   const [activeCheckersBotGame, setActiveCheckersBotGame] = useState<{ username: string; difficulty: CheckersDifficulty } | null>(null)
 
-  // Stop quiz when navigating away from "/"
-  const prevPathRef = useRef(location.pathname)
-  useEffect(() => {
-    if (location.pathname !== '/' && prevPathRef.current === '/' && selectedTopic) {
-      backToTopics()
-    }
-    prevPathRef.current = location.pathname
-  }, [location.pathname]) // eslint-disable-line react-hooks/exhaustive-deps
+  // Battle state
+  const [activeBattleLobby, setActiveBattleLobby] = useState<{ lobby: BattleLobby; player: BattlePlayer } | null>(null)
 
-  // Restore mafia session on mount
+  // Restore Mafia session
   useEffect(() => {
     const s = loadMafiaSession()
     if (!s) return
@@ -108,7 +73,7 @@ function App() {
     return () => { cancelled = true }
   }, [])
 
-  // Restore Checkers session on mount
+  // Restore Checkers session
   useEffect(() => {
     const s = loadCheckersSession()
     if (!s) return
@@ -126,7 +91,7 @@ function App() {
     return () => { cancelled = true }
   }, [])
 
-  // Restore TicTacToe session on mount
+  // Restore TicTacToe session
   useEffect(() => {
     const s = loadTttSession()
     if (!s) return
@@ -144,91 +109,45 @@ function App() {
     return () => { cancelled = true }
   }, [])
 
-  // Restore quiz lobby session on mount
+  // Restore Battle session
   useEffect(() => {
-    const s = loadLobbySession()
+    const s = loadBattleSession()
     if (!s) return
     let cancelled = false
-    getLobby(s.lobbyId)
+    getBattleLobby(s.lobbyId)
       .then((lobby) => {
-        if (cancelled || !lobby) { if (!lobby) clearLobbySession(); return }
-        if (lobby.status === 'finished') { clearLobbySession(); return }
-        setActiveLobby({
+        if (cancelled || !lobby) { if (!lobby) clearBattleSession(); return }
+        if (lobby.status === 'finished') { clearBattleSession(); return }
+        setActiveBattleLobby({
           lobby,
-          player: { id: s.playerId, lobby_id: s.lobbyId, username: s.username, is_host: s.isHost, score: 0, lives: 3, question_index: 0, finished: false, joined_at: new Date().toISOString() },
+          player: { id: s.playerId, lobby_id: s.lobbyId, username: s.username, is_host: s.isHost, team: s.team, score: 0, lives: 3, question_index: 0, finished: false, joined_at: new Date().toISOString() },
         })
       })
-      .catch(() => clearLobbySession())
+      .catch(() => clearBattleSession())
     return () => { cancelled = true }
   }, [])
 
-  // Reset navigation on logout
-  useEffect(() => {
-    if (!user) setCreateLobbyQuiz(null)
-  }, [user])
-
-  const startTopic = (topic: QuizTopic) => {
-    setSelectedTopic(topic)
-    setHud({ question: topic.questions[0]?.q ?? '', questionNumber: 1, score: 0, lives: 3 })
-    setFinished(null)
-    setResetSignal((s) => s + 1)
-  }
-
-  const backToTopics = () => {
-    setSelectedTopic(null)
-    setHud(emptyHud)
-    setFinished(null)
-  }
-
-  const restartSolo = () => {
-    if (!selectedTopic) return
-    setHud({ question: selectedTopic.questions[0]?.q ?? '', questionNumber: 1, score: 0, lives: 3 })
-    setFinished(null)
-    setResetSignal((s) => s + 1)
-  }
-
-  const handleLobbyCreated = ({ lobby, player }: { lobby: Lobby; player: LobbyPlayer }) => {
-    saveLobbySession({ lobbyId: lobby.id, playerId: player.id, username: player.username, isHost: true })
-    setActiveLobby({ lobby, player })
-    setCreateLobbyQuiz(null)
-  }
-
-  const handleLobbyJoined = ({ lobby, player }: { lobby: Lobby; player: LobbyPlayer }) => {
-    saveLobbySession({ lobbyId: lobby.id, playerId: player.id, username: player.username, isHost: false })
-    setActiveLobby({ lobby, player })
-    setJoinDialogOpen(false)
-  }
-
+  // Mafia handlers
   const handleMafiaCreated = ({ lobby, player }: { lobby: MafiaLobby; player: MafiaPlayer }) => {
     saveMafiaSession({ lobbyId: lobby.id, playerId: player.id, username: player.username, isHost: true })
     setActiveMafiaLobby({ lobby, player })
   }
-
   const handleMafiaJoined = ({ lobby, player }: { lobby: MafiaLobby; player: MafiaPlayer }) => {
     saveMafiaSession({ lobbyId: lobby.id, playerId: player.id, username: player.username, isHost: false })
     setActiveMafiaLobby({ lobby, player })
   }
+  const handleMafiaExit = () => { clearMafiaSession(); setActiveMafiaLobby(null) }
 
-  const handleMafiaExit = () => {
-    clearMafiaSession()
-    setActiveMafiaLobby(null)
-  }
-
+  // TicTacToe handlers
   const handleTttCreated = ({ lobby, player }: { lobby: TttLobby; player: TttPlayer }) => {
     saveTttSession({ lobbyId: lobby.id, playerId: player.id, username: player.username, isHost: true })
     setActiveTttLobby({ lobby, player })
   }
-
   const handleTttJoined = ({ lobby, player }: { lobby: TttLobby; player: TttPlayer }) => {
     saveTttSession({ lobbyId: lobby.id, playerId: player.id, username: player.username, isHost: false })
     setActiveTttLobby({ lobby, player })
   }
-
-  const handleTttExit = () => {
-    clearTttSession()
-    setActiveTttLobby(null)
-  }
-
+  const handleTttExit = () => { clearTttSession(); setActiveTttLobby(null) }
   const handleBotGame = ({ username, difficulty }: { username: string; difficulty: BotDifficulty }) => {
     setActiveBotGame({ username, difficulty })
   }
@@ -246,12 +165,20 @@ function App() {
     setActiveCheckersBotGame({ username, difficulty })
   }
 
-  const livesText = `${'♥'.repeat(Math.max(0, hud.lives))}${'♡'.repeat(Math.max(0, 3 - hud.lives))}`
-  const totalQuestions = selectedTopic?.questions.length ?? 0
+  // Battle handlers
+  const handleBattleCreated = ({ lobby, player }: { lobby: BattleLobby; player: BattlePlayer }) => {
+    saveBattleSession({ lobbyId: lobby.id, playerId: player.id, username: player.username, isHost: true, team: player.team })
+    setActiveBattleLobby({ lobby, player })
+  }
+  const handleBattleJoined = ({ lobby, player }: { lobby: BattleLobby; player: BattlePlayer }) => {
+    saveBattleSession({ lobbyId: lobby.id, playerId: player.id, username: player.username, isHost: false, team: player.team })
+    setActiveBattleLobby({ lobby, player })
+  }
+  const handleBattleExit = () => { clearBattleSession(); setActiveBattleLobby(null) }
 
   if (authLoading) return <div className="auth-loading" />
 
-  // Full-screen takeovers (before any layout)
+  // Full-screen takeovers
   if (activeCheckersBotGame) {
     return (
       <CheckersBotGame
@@ -261,7 +188,6 @@ function App() {
       />
     )
   }
-
   if (activeCheckersLobby) {
     return (
       <CheckersGame
@@ -271,7 +197,6 @@ function App() {
       />
     )
   }
-
   if (activeBotGame) {
     return (
       <TicTacToeBotGame
@@ -281,7 +206,6 @@ function App() {
       />
     )
   }
-
   if (activeTttLobby) {
     return (
       <TicTacToeGame
@@ -291,7 +215,6 @@ function App() {
       />
     )
   }
-
   if (activeMafiaLobby) {
     return (
       <MafiaGame
@@ -301,78 +224,37 @@ function App() {
       />
     )
   }
-
-  if (activeLobby) {
+  if (activeBattleLobby) {
     return (
-      <LobbyView
-        lobby={activeLobby.lobby}
-        player={activeLobby.player}
+      <BattleGame
+        lobby={activeBattleLobby.lobby}
+        player={activeBattleLobby.player}
         soundEnabled={soundEnabled}
         onSoundToggle={() => setSoundEnabled((e) => !e)}
-        onExit={() => { clearLobbySession(); setActiveLobby(null) }}
+        onExit={handleBattleExit}
       />
     )
   }
 
   return (
-    <main className={`edu-mars${selectedTopic ? ' is-playing' : ''}`}>
-      {/* HUD (shown during quiz) */}
-      <div className={`hud${selectedTopic ? '' : ' is-hidden'}`}>
-        <div className="score-bar">
-          <button type="button" className="topic-back" onClick={backToTopics}>
-            {t('hud.topics')}
-          </button>
-          <span>{t('hud.correct')}: <span>{hud.score}</span></span>
-          <span>{t('hud.question')}: <span>{hud.questionNumber}</span>/{totalQuestions}</span>
-          <span className="lives">{livesText}</span>
-          <button
-            type="button"
-            className="sound-toggle"
-            aria-label={soundEnabled ? t('hud.soundOff') : t('hud.soundOn')}
-            onClick={() => setSoundEnabled((e) => !e)}
-          >
-            {t('hud.sound')}: {soundEnabled ? 'ON' : 'OFF'}
-          </button>
-          {user && (
-            <span className="user-chip" title={user.email ?? ''}>{userLabel}</span>
-          )}
-        </div>
-        <div className="question-box">
-          <div className="question-text">{hud.question}</div>
-        </div>
-      </div>
-
-      {/* Canvas (always behind everything) */}
-      <ShooterCanvas
-        questions={selectedTopic?.questions ?? []}
-        soundEnabled={soundEnabled}
-        active={Boolean(selectedTopic) && !finished}
-        resetSignal={resetSignal}
-        onProgress={setHud}
-        onFinished={setFinished}
-      />
-
-      {/* Main content overlay */}
-      <section className={`topic-menu${selectedTopic ? '' : ' is-visible'} has-sidebar`}>
+    <main className="edu-mars">
+      <section className="topic-menu is-visible has-sidebar">
         <Sidebar
           user={user}
           userLabel={userLabel}
           onSignIn={signInWithGoogle}
           onSignOut={signOut}
         />
-
         <div className="topic-menu-inner">
-          {/* Page routes */}
           <Routes>
             <Route
               path="/"
               element={
-                <TopicsPage
-                  user={user}
-                  topics={topics}
-                  onStartTopic={startTopic}
-                  onCreateLobby={setCreateLobbyQuiz}
-                  onJoinLobby={() => setJoinDialogOpen(true)}
+                <BattlePage
+                  userLabel={userLabel}
+                  userId={user?.id ?? 'anon'}
+                  onCreated={handleBattleCreated}
+                  onJoined={handleBattleJoined}
                 />
               }
             />
@@ -391,12 +273,7 @@ function App() {
               path="/my-quizzes"
               element={
                 user ? (
-                  <MyQuizzesPage
-                    user={user}
-                    userLabel={userLabel}
-                    onStartTopic={startTopic}
-                    onCreateLobby={setCreateLobbyQuiz}
-                  />
+                  <MyQuizzesPage user={user} userLabel={userLabel} />
                 ) : (
                   <Navigate to="/" replace />
                 )
@@ -428,35 +305,6 @@ function App() {
           </Routes>
         </div>
       </section>
-
-      {/* Solo game over overlay */}
-      <div className={`overlay${finished ? ' is-visible' : ''}`}>
-        <h2>{finished?.won ? t('gameOver.won') : t('gameOver.lost')}</h2>
-        <p>{t('gameOver.correctAnswers', { score: hud.score, total: totalQuestions })}</p>
-        <div className="overlay-actions">
-          <button type="button" onClick={restartSolo}>{t('gameOver.restart')}</button>
-          <button type="button" onClick={backToTopics}>{t('gameOver.topics')}</button>
-        </div>
-      </div>
-
-      {/* Dialogs */}
-      {user && createLobbyQuiz && (
-        <LobbyCreateDialog
-          hostId={user.id}
-          defaultUsername={userLabel}
-          quiz={createLobbyQuiz}
-          onCreated={handleLobbyCreated}
-          onCancel={() => setCreateLobbyQuiz(null)}
-        />
-      )}
-
-      {joinDialogOpen && (
-        <LobbyJoinDialog
-          defaultUsername={userLabel}
-          onJoined={handleLobbyJoined}
-          onCancel={() => setJoinDialogOpen(false)}
-        />
-      )}
     </main>
   )
 }

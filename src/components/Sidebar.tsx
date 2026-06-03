@@ -10,15 +10,6 @@ type SidebarProps = {
   onSignOut: () => void
 }
 
-function IconQuiz() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
-      <rect x="1" y="2" width="13" height="2" rx="1" fill="currentColor" />
-      <rect x="1" y="6.5" width="13" height="2" rx="1" fill="currentColor" />
-      <rect x="1" y="11" width="8" height="2" rx="1" fill="currentColor" />
-    </svg>
-  )
-}
 
 function IconMyQuizzes() {
   return (
@@ -48,6 +39,19 @@ function IconTtt() {
       <line x1="10" y1="1" x2="10" y2="14" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
       <line x1="1" y1="5" x2="14" y2="5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
       <line x1="1" y1="10" x2="14" y2="10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+function IconBattle() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+      <rect x="1" y="6" width="4" height="3" rx="1" fill="currentColor" />
+      <rect x="10" y="6" width="4" height="3" rx="1" fill="currentColor" />
+      <line x1="5" y1="7.5" x2="10" y2="7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <circle cx="7.5" cy="7.5" r="1.5" fill="currentColor" />
+      <path d="M2.5 5L2.5 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      <path d="M12.5 5L12.5 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
     </svg>
   )
 }
@@ -136,15 +140,9 @@ export function Sidebar({ user, userLabel, onSignIn, onSignOut }: SidebarProps) 
 
         <nav className="sidebar-nav">
           <NavLink to="/" end className={linkClass} onClick={handleNavClick}>
-            <IconQuiz />
-            {t('nav.tests')}
+            <IconBattle />
+            {t('nav.battle')}
           </NavLink>
-          {user && (
-            <NavLink to="/my-quizzes" className={linkClass} onClick={handleNavClick}>
-              <IconMyQuizzes />
-              {t('nav.myTests')}
-            </NavLink>
-          )}
           <NavLink to="/checkers" className={linkClass} onClick={handleNavClick}>
             <IconCheckers />
             {t('nav.checkers')}
@@ -157,6 +155,12 @@ export function Sidebar({ user, userLabel, onSignIn, onSignOut }: SidebarProps) 
             <IconMafia />
             {t('nav.mafiaGame')}
           </NavLink>
+          {user && (
+            <NavLink to="/my-quizzes" className={linkClass} onClick={handleNavClick}>
+              <IconMyQuizzes />
+              {t('nav.myTests')}
+            </NavLink>
+          )}
         </nav>
 
         <div className="sidebar-footer">
