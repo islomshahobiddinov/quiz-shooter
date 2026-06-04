@@ -27,6 +27,10 @@ import { getBattleLobby } from './lib/battleApi'
 import { clearBattleSession, loadBattleSession, saveBattleSession } from './lib/battleSession'
 import { BattleGame } from './components/BattleGame'
 import { BattlePage } from './pages/BattlePage'
+import { CrosswordPage } from './pages/CrosswordPage'
+import { HangmanPage } from './pages/HangmanPage'
+import { MemoryPage } from './pages/MemoryPage'
+import { UnoPage } from './pages/UnoPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import './App.css'
 
@@ -314,6 +318,22 @@ function App() {
               onBotGame={handleCheckersBotGame}
             />
           )}
+        />
+        <Route
+          path="/crossword"
+          element={gameRoutes(<CrosswordPage />)}
+        />
+        <Route
+          path="/hangman"
+          element={gameRoutes(<HangmanPage />)}
+        />
+        <Route
+          path="/memory"
+          element={gameRoutes(<MemoryPage />)}
+        />
+        <Route
+          path="/uno"
+          element={gameRoutes(<UnoPage userLabel={userLabel} />)}
         />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

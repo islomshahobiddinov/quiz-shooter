@@ -125,6 +125,146 @@ function CheckersSvg() {
   )
 }
 
+function UnoSvg() {
+  return (
+    <svg viewBox="0 0 280 150" fill="none" aria-hidden="true" className="game-card-svg">
+      <ellipse cx="140" cy="75" rx="95" ry="58" fill="rgba(220,38,38,0.05)" />
+      {/* Cards fanned out */}
+      {[
+        { x: 80,  y: 22, rot: -18, bg: '#dc2626', label: '7' },
+        { x: 105, y: 15, rot: -8,  bg: '#d97706', label: '+2' },
+        { x: 132, y: 12, rot: 0,   bg: '#16a34a', label: '↺' },
+        { x: 159, y: 15, rot: 8,   bg: '#2563eb', label: 'W' },
+        { x: 184, y: 22, rot: 18,  bg: '#4c1d95', label: '+4' },
+      ].map((c, i) => (
+        <g key={i} transform={`rotate(${c.rot} ${c.x + 17} 100)`}>
+          <rect x={c.x} y={c.y} width="34" height="50" rx="5" fill={c.bg} stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" />
+          <text x={c.x + 17} y={c.y + 30} textAnchor="middle" fontSize="13" fontWeight="bold"
+            fontFamily="'Courier New',monospace" fill="white">{c.label}</text>
+        </g>
+      ))}
+      {/* UNO badge */}
+      <rect x="106" y="98" width="68" height="28" rx="6" fill="#dc2626" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" />
+      <text x="140" y="117" textAnchor="middle" fontSize="16" fontWeight="bold"
+        fontFamily="'Courier New',monospace" fill="white" letterSpacing="3">UNO</text>
+      <circle cx="42"  cy="45"  r="2"   fill="rgba(220,38,38,0.4)" />
+      <circle cx="240" cy="110" r="1.5" fill="rgba(220,38,38,0.35)" />
+    </svg>
+  )
+}
+
+function MemoryMatchSvg() {
+  const cards = [
+    { x: 42,  y: 20, matched: true  },
+    { x: 96,  y: 20, matched: false },
+    { x: 150, y: 20, matched: true  },
+    { x: 204, y: 20, matched: false },
+    { x: 42,  y: 78, matched: false },
+    { x: 96,  y: 78, matched: true  },
+    { x: 150, y: 78, matched: false },
+    { x: 204, y: 78, matched: true  },
+  ]
+  return (
+    <svg viewBox="0 0 280 150" fill="none" aria-hidden="true" className="game-card-svg">
+      <ellipse cx="140" cy="75" rx="100" ry="58" fill="rgba(167,139,250,0.05)" />
+      {cards.map((c, i) => (
+        <g key={i}>
+          <rect
+            x={c.x} y={c.y} width="38" height="50" rx="5"
+            fill={c.matched ? 'rgba(167,139,250,0.12)' : 'rgba(167,139,250,0.05)'}
+            stroke={c.matched ? 'rgba(167,139,250,0.6)' : 'rgba(167,139,250,0.25)'}
+            strokeWidth="1.5"
+          />
+          {c.matched ? (
+            <text
+              x={c.x + 19} y={c.y + 30}
+              textAnchor="middle" fontSize="14" fontWeight="bold"
+              fontFamily="'Courier New',monospace"
+              fill="rgba(167,139,250,0.9)"
+            >
+              {['JS', 'C+', 'JS', 'C+'][i % 4]}
+            </text>
+          ) : (
+            <text
+              x={c.x + 19} y={c.y + 30}
+              textAnchor="middle" fontSize="20" fontWeight="bold"
+              fontFamily="'Courier New',monospace"
+              fill="rgba(167,139,250,0.3)"
+            >?</text>
+          )}
+        </g>
+      ))}
+      <circle cx="30"  cy="135" r="1.5" fill="rgba(167,139,250,0.3)" />
+      <circle cx="250" cy="15"  r="2"   fill="rgba(167,139,250,0.3)" />
+    </svg>
+  )
+}
+
+function HangmanSvg() {
+  return (
+    <svg viewBox="0 0 280 150" fill="none" aria-hidden="true" className="game-card-svg">
+      <ellipse cx="140" cy="75" rx="90" ry="55" fill="rgba(250,204,21,0.05)" />
+      {/* Gallows */}
+      <line x1="60" y1="135" x2="140" y2="135" stroke="rgba(250,204,21,0.6)" strokeWidth="2.5" strokeLinecap="round" />
+      <line x1="80"  y1="135" x2="80"  y2="20"  stroke="rgba(250,204,21,0.6)" strokeWidth="2.5" strokeLinecap="round" />
+      <line x1="80"  y1="20"  x2="160" y2="20"  stroke="rgba(250,204,21,0.6)" strokeWidth="2.5" strokeLinecap="round" />
+      <line x1="160" y1="20"  x2="160" y2="38"  stroke="rgba(250,204,21,0.5)" strokeWidth="2"   strokeLinecap="round" />
+      {/* Figure */}
+      <circle cx="160" cy="52" r="14" stroke="#ff4455" strokeWidth="2.5" fill="none" />
+      <line x1="160" y1="66"  x2="160" y2="100" stroke="#ff4455" strokeWidth="2.5" strokeLinecap="round" />
+      <line x1="160" y1="78"  x2="142" y2="92"  stroke="#ff4455" strokeWidth="2.5" strokeLinecap="round" />
+      <line x1="160" y1="78"  x2="178" y2="92"  stroke="#ff4455" strokeWidth="2.5" strokeLinecap="round" />
+      <line x1="160" y1="100" x2="142" y2="120" stroke="#ff4455" strokeWidth="2.5" strokeLinecap="round" />
+      <line x1="160" y1="100" x2="178" y2="120" stroke="#ff4455" strokeWidth="2.5" strokeLinecap="round" />
+      {/* Letter blanks */}
+      <line x1="38" y1="105" x2="52" y2="105" stroke="rgba(250,204,21,0.7)" strokeWidth="2" strokeLinecap="round" />
+      <line x1="56" y1="105" x2="70" y2="105" stroke="rgba(250,204,21,0.7)" strokeWidth="2" strokeLinecap="round" />
+      <line x1="74" y1="105" x2="88" y2="105" stroke="rgba(250,204,21,0.3)" strokeWidth="2" strokeLinecap="round" />
+      <line x1="92" y1="105" x2="106" y2="105" stroke="rgba(250,204,21,0.7)" strokeWidth="2" strokeLinecap="round" />
+      <text x="41"  y="102" fontSize="11" fontWeight="bold" fontFamily="'Courier New',monospace" fill="rgba(250,204,21,0.9)">H</text>
+      <text x="59"  y="102" fontSize="11" fontWeight="bold" fontFamily="'Courier New',monospace" fill="rgba(250,204,21,0.9)">O</text>
+      <text x="93"  y="102" fontSize="11" fontWeight="bold" fontFamily="'Courier New',monospace" fill="rgba(250,204,21,0.9)">K</text>
+      <circle cx="230" cy="40" r="2"   fill="rgba(250,204,21,0.3)" />
+      <circle cx="48"  cy="55" r="1.5" fill="rgba(250,204,21,0.25)" />
+    </svg>
+  )
+}
+
+function CrosswordSvg() {
+  return (
+    <svg viewBox="0 0 280 150" fill="none" aria-hidden="true" className="game-card-svg">
+      <ellipse cx="140" cy="75" rx="90" ry="55" fill="rgba(96,212,160,0.05)" />
+      {[0,1,2,3,4].map(r =>
+        [0,1,2,3,4].map(c => {
+          const black = (r === 0 && c === 3) || (r === 0 && c === 4) || (r === 4 && c === 0) || (r === 4 && c === 1) || (r === 2 && c === 2)
+          return (
+            <rect key={`${r}-${c}`}
+              x={84 + c * 24} y={18 + r * 24}
+              width="23" height="23"
+              fill={black ? 'rgba(10,14,26,0.9)' : 'rgba(96,212,160,0.08)'}
+              stroke="rgba(96,212,160,0.3)" strokeWidth="1"
+            />
+          )
+        })
+      )}
+      <text x="96" y="34" fontSize="11" fontWeight="bold" fontFamily="'Courier New',monospace" fill="rgba(96,212,160,0.9)">A</text>
+      <text x="120" y="34" fontSize="11" fontWeight="bold" fontFamily="'Courier New',monospace" fill="rgba(96,212,160,0.9)">R</text>
+      <text x="144" y="34" fontSize="11" fontWeight="bold" fontFamily="'Courier New',monospace" fill="rgba(96,212,160,0.9)">R</text>
+      <text x="96" y="58" fontSize="11" fontWeight="bold" fontFamily="'Courier New',monospace" fill="rgba(96,212,160,0.7)">R</text>
+      <text x="96" y="82" fontSize="11" fontWeight="bold" fontFamily="'Courier New',monospace" fill="rgba(96,212,160,0.9)">L</text>
+      <text x="120" y="82" fontSize="11" fontWeight="bold" fontFamily="'Courier New',monospace" fill="rgba(96,212,160,0.9)">O</text>
+      <text x="144" y="82" fontSize="11" fontWeight="bold" fontFamily="'Courier New',monospace" fill="rgba(255,224,102,0.9)">O</text>
+      <text x="168" y="82" fontSize="11" fontWeight="bold" fontFamily="'Courier New',monospace" fill="rgba(96,212,160,0.9)">P</text>
+      <text x="96" y="106" fontSize="11" fontWeight="bold" fontFamily="'Courier New',monospace" fill="rgba(96,212,160,0.7)">A</text>
+      <text x="96" y="130" fontSize="11" fontWeight="bold" fontFamily="'Courier New',monospace" fill="rgba(96,212,160,0.7)">Y</text>
+      <circle cx="232" cy="40" r="2" fill="rgba(96,212,160,0.35)" />
+      <circle cx="248" cy="110" r="1.5" fill="rgba(96,212,160,0.3)" />
+      <circle cx="44" cy="60" r="2" fill="rgba(96,212,160,0.3)" />
+      <circle cx="56" cy="120" r="1.5" fill="rgba(96,212,160,0.25)" />
+    </svg>
+  )
+}
+
 function MyQuizzesSvg() {
   return (
     <svg viewBox="0 0 280 150" fill="none" aria-hidden="true" className="game-card-svg">
@@ -188,6 +328,46 @@ const GAMES = [
     border: 'rgba(251,146,60,0.45)',
     bg: 'rgba(251,146,60,0.07)',
     svg: <CheckersSvg />,
+  },
+  {
+    key: 'uno',
+    titleKey: 'nav.uno',
+    descKey: 'home.unoDesc',
+    route: '/uno',
+    color: '#ef4444',
+    border: 'rgba(239,68,68,0.45)',
+    bg: 'rgba(239,68,68,0.07)',
+    svg: <UnoSvg />,
+  },
+  {
+    key: 'memory',
+    titleKey: 'nav.memory',
+    descKey: 'home.memoryDesc',
+    route: '/memory',
+    color: '#a78bfa',
+    border: 'rgba(167,139,250,0.45)',
+    bg: 'rgba(167,139,250,0.07)',
+    svg: <MemoryMatchSvg />,
+  },
+  {
+    key: 'hangman',
+    titleKey: 'nav.hangman',
+    descKey: 'home.hangmanDesc',
+    route: '/hangman',
+    color: '#facc15',
+    border: 'rgba(250,204,21,0.45)',
+    bg: 'rgba(250,204,21,0.07)',
+    svg: <HangmanSvg />,
+  },
+  {
+    key: 'crossword',
+    titleKey: 'nav.crossword',
+    descKey: 'home.crosswordDesc',
+    route: '/crossword',
+    color: '#60d4a0',
+    border: 'rgba(96,212,160,0.45)',
+    bg: 'rgba(96,212,160,0.07)',
+    svg: <CrosswordSvg />,
   },
 ]
 
