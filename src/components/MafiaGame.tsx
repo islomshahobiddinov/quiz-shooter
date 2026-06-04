@@ -4,6 +4,7 @@ import type { LastEvent, MafiaLobby, MafiaPlayer, MafiaRole } from '../lib/mafia
 import {
   castVote,
   checkAllNightActionsReady,
+  closeMafiaLobby,
   kickMafiaPlayer,
   leaveMafiaLobby,
   resolveNight,
@@ -31,6 +32,58 @@ const ROLE_CLASSES: Record<MafiaRole, string> = {
 
 function copyToClipboard(text: string) {
   navigator.clipboard.writeText(text).catch(() => {})
+}
+
+type TFunction = (key: string) => string
+
+function NightActivityPanel({
+  lobby,
+  players,
+  t,
+}: {
+  lobby: MafiaLobby
+  players: MafiaPlayer[]
+  t: TFunction
+}) {
+  const alive = players.filter((p) => p.is_alive)
+  const hasLiveMafia = alive.some((p) => lobby.roles[p.id] === 'mafia')
+  const hasLiveDoctor = alive.some((p) => lobby.roles[p.id] === 'doctor')
+  const hasLiveSheriff = alive.some((p) => lobby.roles[p.id] === 'sheriff')
+
+  const mafiaActed = !!lobby.night_actions.mafiaTarget
+  const doctorActed = !!lobby.night_actions.doctorTarget
+  const sheriffActed = !!(lobby.night_actions.sheriffTarget || lobby.night_actions.sheriffShootTarget)
+
+  const allReady =
+    (!hasLiveMafia || mafiaActed) &&
+    (!hasLiveDoctor || doctorActed) &&
+    (!hasLiveSheriff || sheriffActed)
+
+  const rows: { icon: string; acted: boolean }[] = []
+  if (hasLiveMafia) rows.push({ icon: '🔴', acted: mafiaActed })
+  if (hasLiveDoctor) rows.push({ icon: '💊', acted: doctorActed })
+  if (hasLiveSheriff) rows.push({ icon: '🔍', acted: sheriffActed })
+
+  if (rows.length === 0) return null
+
+  return (
+    <div className="mafia-night-activity">
+      <p className="mafia-night-activity-title">{t('mafia.nightActivity')}</p>
+      <ul className="mafia-night-activity-list">
+        {rows.map((row, i) => (
+          <li key={i} className={`mafia-night-activity-row${row.acted ? ' is-done' : ''}`}>
+            <span className="mafia-night-activity-icon">{row.icon}</span>
+            <span className={`mafia-night-activity-status${row.acted ? ' is-done' : ''}`}>
+              {row.acted ? t('mafia.nightActed') : t('mafia.nightWaiting')}
+            </span>
+          </li>
+        ))}
+      </ul>
+      {allReady && (
+        <p className="mafia-night-activity-ready">{t('mafia.nightAllReady')}</p>
+      )}
+    </div>
+  )
 }
 
 export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Props) {
@@ -136,6 +189,13 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
     onExit()
   }
 
+  const handleCloseLobby = async () => {
+    setBusy(true); setErr('')
+    try { await closeMafiaLobby(lobby.id); onExit() }
+    catch (e) { setErr(e instanceof Error ? e.message : t('mafia.exit')) }
+    finally { setBusy(false) }
+  }
+
   const handleStartDayVote = async () => {
     setBusy(true); setErr('')
     try { await startDayVote(lobby.id) }
@@ -226,7 +286,13 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
             <p className="mafia-waiting">{t('mafia.waitingForHost')}</p>
           )}
 
-          <button type="button" className="mafia-exit-btn" onClick={handleExit}>{t('mafia.exit')}</button>
+          {isHost ? (
+            <button type="button" className="mafia-exit-btn mafia-exit-btn--danger" onClick={handleCloseLobby} disabled={busy}>
+              {busy ? t('mafia.closingLobby') : t('mafia.closeLobby')}
+            </button>
+          ) : (
+            <button type="button" className="mafia-exit-btn" onClick={handleExit}>{t('mafia.exit')}</button>
+          )}
         </div>
       </div>
     )
@@ -235,11 +301,12 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
   // ── GAME OVER ────────────────────────────────────────────────
   if (lobby.status === 'finished') {
     const isMafiaWin = lobby.winner === 'mafia'
+    const isCancelled = lobby.winner === 'cancelled'
     return (
       <div className="mafia-game mafia-game--over">
         <div className="mafia-game-inner">
-          <h1 className={`mafia-winner-title ${isMafiaWin ? 'mafia-winner--red' : 'mafia-winner--cyan'}`}>
-            {isMafiaWin ? t('mafia.mafiaWon') : t('mafia.cityWon')}
+          <h1 className={`mafia-winner-title ${isCancelled ? '' : isMafiaWin ? 'mafia-winner--red' : 'mafia-winner--cyan'}`}>
+            {isCancelled ? t('mafia.gameCancelled') : isMafiaWin ? t('mafia.mafiaWon') : t('mafia.cityWon')}
           </h1>
 
           <p className="mafia-section-title">{t('mafia.allRoles')}</p>
@@ -275,6 +342,7 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
   if (lobby.phase === 'night') {
     const nonMafiaAlive = alivePlayers.filter((p) => lobby.roles[p.id] !== 'mafia')
     const mafiaTeam = alivePlayers.filter((p) => lobby.roles[p.id] === 'mafia')
+    const amAliveInNight = me?.is_alive ?? false
 
     return (
       <div className="mafia-game mafia-game--night">
@@ -291,23 +359,105 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
           )}
 
           {myRole === 'mafia' && (
-            <>
-              {mafiaTeam.length > 1 && (
-                <p className="mafia-team-info">
-                  {t('mafia.mafiaTeam')}: {mafiaTeam.filter(p => p.id !== myPlayer.id).map(p => p.username).join(', ')}
-                </p>
-              )}
-              {nightActionDone ? (
-                <p className="mafia-done-msg">{t('mafia.targetSelected')}</p>
+            amAliveInNight ? (
+              <>
+                {mafiaTeam.length > 1 && (
+                  <p className="mafia-team-info">
+                    {t('mafia.mafiaTeam')}: {mafiaTeam.filter(p => p.id !== myPlayer.id).map(p => p.username).join(', ')}
+                  </p>
+                )}
+                {nightActionDone ? (
+                  <p className="mafia-done-msg">{t('mafia.targetSelected')}</p>
+                ) : (
+                  <>
+                    <p className="mafia-action-prompt">{t('mafia.whoToKill')}</p>
+                    <ul className="mafia-target-list">
+                      {nonMafiaAlive.map((p) => (
+                        <li key={p.id}>
+                          <button
+                            type="button"
+                            className="mafia-target-btn mafia-target-btn--kill"
+                            onClick={() => handleNightAction(p.id)}
+                            disabled={busy}
+                          >
+                            {p.username}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+              </>
+            ) : (
+              <div className="mafia-sleep">
+                <p>{t('mafia.youAreDead')}</p>
+              </div>
+            )
+          )}
+
+          {myRole === 'doctor' && (
+            amAliveInNight ? (
+              nightActionDone ? (
+                <p className="mafia-done-msg">{t('mafia.protected')}</p>
               ) : (
                 <>
-                  <p className="mafia-action-prompt">{t('mafia.whoToKill')}</p>
+                  <p className="mafia-action-prompt">{t('mafia.whoToProtect')}</p>
                   <ul className="mafia-target-list">
-                    {nonMafiaAlive.map((p) => (
+                    {alivePlayers.map((p) => (
                       <li key={p.id}>
                         <button
                           type="button"
-                          className="mafia-target-btn mafia-target-btn--kill"
+                          className="mafia-target-btn mafia-target-btn--save"
+                          onClick={() => handleNightAction(p.id)}
+                          disabled={busy}
+                        >
+                          {p.username} {p.id === myPlayer.id ? t('mafia.you') : ''}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )
+            ) : (
+              <div className="mafia-sleep">
+                <p>{t('mafia.youAreDead')}</p>
+              </div>
+            )
+          )}
+
+          {myRole === 'sheriff' && (
+            amAliveInNight ? (
+              nightActionDone ? (
+                <p className="mafia-done-msg">
+                  {sheriffAction === 'shoot' ? t('mafia.shot') : t('mafia.checked')}
+                </p>
+              ) : (
+                <>
+                  <div className="mafia-sheriff-toggle">
+                    <button
+                      type="button"
+                      className={`mafia-toggle-btn${sheriffAction === 'check' ? ' is-active' : ''}`}
+                      onClick={() => setSheriffAction('check')}
+                    >
+                      {t('mafia.sheriffCheck')}
+                    </button>
+                    <button
+                      type="button"
+                      className={`mafia-toggle-btn mafia-toggle-btn--danger${sheriffAction === 'shoot' ? ' is-active' : ''}`}
+                      onClick={() => setSheriffAction('shoot')}
+                    >
+                      {t('mafia.sheriffShoot')}
+                    </button>
+                  </div>
+                  <p className="mafia-action-prompt">
+                    {sheriffAction === 'shoot' ? t('mafia.whoToShoot') : t('mafia.whoToCheck')}
+                  </p>
+                  <ul className="mafia-target-list">
+                    {alivePlayers.filter(p => p.id !== myPlayer.id).map((p) => (
+                      <li key={p.id}>
+                        <button
+                          type="button"
+                          className={`mafia-target-btn${sheriffAction === 'shoot' ? ' mafia-target-btn--kill' : ' mafia-target-btn--check'}`}
                           onClick={() => handleNightAction(p.id)}
                           disabled={busy}
                         >
@@ -317,75 +467,11 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
                     ))}
                   </ul>
                 </>
-              )}
-            </>
-          )}
-
-          {myRole === 'doctor' && (
-            nightActionDone ? (
-              <p className="mafia-done-msg">{t('mafia.protected')}</p>
+              )
             ) : (
-              <>
-                <p className="mafia-action-prompt">{t('mafia.whoToProtect')}</p>
-                <ul className="mafia-target-list">
-                  {alivePlayers.map((p) => (
-                    <li key={p.id}>
-                      <button
-                        type="button"
-                        className="mafia-target-btn mafia-target-btn--save"
-                        onClick={() => handleNightAction(p.id)}
-                        disabled={busy}
-                      >
-                        {p.username} {p.id === myPlayer.id ? t('mafia.you') : ''}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </>
-            )
-          )}
-
-          {myRole === 'sheriff' && (
-            nightActionDone ? (
-              <p className="mafia-done-msg">
-                {sheriffAction === 'shoot' ? t('mafia.shot') : t('mafia.checked')}
-              </p>
-            ) : (
-              <>
-                <div className="mafia-sheriff-toggle">
-                  <button
-                    type="button"
-                    className={`mafia-toggle-btn${sheriffAction === 'check' ? ' is-active' : ''}`}
-                    onClick={() => setSheriffAction('check')}
-                  >
-                    {t('mafia.sheriffCheck')}
-                  </button>
-                  <button
-                    type="button"
-                    className={`mafia-toggle-btn mafia-toggle-btn--danger${sheriffAction === 'shoot' ? ' is-active' : ''}`}
-                    onClick={() => setSheriffAction('shoot')}
-                  >
-                    {t('mafia.sheriffShoot')}
-                  </button>
-                </div>
-                <p className="mafia-action-prompt">
-                  {sheriffAction === 'shoot' ? t('mafia.whoToShoot') : t('mafia.whoToCheck')}
-                </p>
-                <ul className="mafia-target-list">
-                  {alivePlayers.filter(p => p.id !== myPlayer.id).map((p) => (
-                    <li key={p.id}>
-                      <button
-                        type="button"
-                        className={`mafia-target-btn${sheriffAction === 'shoot' ? ' mafia-target-btn--kill' : ' mafia-target-btn--check'}`}
-                        onClick={() => handleNightAction(p.id)}
-                        disabled={busy}
-                      >
-                        {p.username}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </>
+              <div className="mafia-sleep">
+                <p>{t('mafia.youAreDead')}</p>
+              </div>
             )
           )}
 
@@ -396,7 +482,15 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
             </div>
           )}
 
+          <NightActivityPanel lobby={lobby} players={players} t={t} />
+
           {err && <p className="mafia-error">{err}</p>}
+
+          {isHost && (
+            <button type="button" className="mafia-exit-btn mafia-exit-btn--danger" onClick={handleCloseLobby} disabled={busy}>
+              {busy ? t('mafia.closingLobby') : t('mafia.endGame')}
+            </button>
+          )}
         </div>
       </div>
     )
@@ -447,14 +541,19 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
           {err && <p className="mafia-error">{err}</p>}
 
           {isHost ? (
-            <button
-              type="button"
-              className="mafia-btn mafia-btn--primary"
-              onClick={handleStartDayVote}
-              disabled={busy}
-            >
-              {t('mafia.goToDiscussion')}
-            </button>
+            <>
+              <button
+                type="button"
+                className="mafia-btn mafia-btn--primary"
+                onClick={handleStartDayVote}
+                disabled={busy}
+              >
+                {t('mafia.goToDiscussion')}
+              </button>
+              <button type="button" className="mafia-exit-btn mafia-exit-btn--danger" onClick={handleCloseLobby} disabled={busy}>
+                {busy ? t('mafia.closingLobby') : t('mafia.endGame')}
+              </button>
+            </>
           ) : (
             <p className="mafia-waiting">{t('mafia.waitingForDiscussion')}</p>
           )}
@@ -517,14 +616,19 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
           {err && <p className="mafia-error">{err}</p>}
 
           {isHost && (
-            <button
-              type="button"
-              className="mafia-btn mafia-btn--primary"
-              onClick={handleResolveVote}
-              disabled={busy || !allVoted}
-            >
-              {allVoted ? t('mafia.finalizeVotes') : `${t('mafia.waitingVotes')} (${voteCount}/${aliveCount})`}
-            </button>
+            <>
+              <button
+                type="button"
+                className="mafia-btn mafia-btn--primary"
+                onClick={handleResolveVote}
+                disabled={busy || !allVoted}
+              >
+                {allVoted ? t('mafia.finalizeVotes') : `${t('mafia.waitingVotes')} (${voteCount}/${aliveCount})`}
+              </button>
+              <button type="button" className="mafia-exit-btn mafia-exit-btn--danger" onClick={handleCloseLobby} disabled={busy}>
+                {busy ? t('mafia.closingLobby') : t('mafia.endGame')}
+              </button>
+            </>
           )}
         </div>
       </div>
@@ -573,14 +677,19 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
           {err && <p className="mafia-error">{err}</p>}
 
           {isHost ? (
-            <button
-              type="button"
-              className="mafia-btn mafia-btn--primary"
-              onClick={handleNextNight}
-              disabled={busy}
-            >
-              {t('mafia.goToNight')}
-            </button>
+            <>
+              <button
+                type="button"
+                className="mafia-btn mafia-btn--primary"
+                onClick={handleNextNight}
+                disabled={busy}
+              >
+                {t('mafia.goToNight')}
+              </button>
+              <button type="button" className="mafia-exit-btn mafia-exit-btn--danger" onClick={handleCloseLobby} disabled={busy}>
+                {busy ? t('mafia.closingLobby') : t('mafia.endGame')}
+              </button>
+            </>
           ) : (
             <p className="mafia-waiting">{t('mafia.waitingForNight')}</p>
           )}

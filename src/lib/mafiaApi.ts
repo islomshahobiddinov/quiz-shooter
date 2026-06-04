@@ -333,6 +333,19 @@ export async function startNextNight(lobbyId: string): Promise<void> {
   if (error) throw error
 }
 
+export async function closeMafiaLobby(lobbyId: string): Promise<void> {
+  const { error } = await supabase
+    .from('mafia_lobbies')
+    .update({
+      status: 'finished',
+      phase: null,
+      winner: 'cancelled',
+      finished_at: new Date().toISOString(),
+    })
+    .eq('id', lobbyId)
+  if (error) throw error
+}
+
 type Cleanup = () => void
 
 export function subscribeToMafiaLobby(
@@ -374,7 +387,7 @@ export function subscribeToMafiaPlayers(
       } else if (payload.eventType === 'UPDATE') {
         emit(current.map((p) => p.id === (payload.new as MafiaPlayer).id ? payload.new as MafiaPlayer : p))
       } else if (payload.eventType === 'DELETE') {
-        emit(current.filter((p) => p.id !== (payload.old as MafiaPlayer).id))
+        listMafiaPlayers(lobbyId).then(emit).catch(console.error)
       }
     })
     .subscribe()

@@ -149,7 +149,15 @@
     "sheriffShoot": "ЗАСТРЕЛИТЬ",
     "whoToShoot": "Кого застрелите?",
     "shot": "✓ Застрелен. Результат будет на рассвете.",
-    "sheriffKilledMsg": "застрелен шерифом"
+    "sheriffKilledMsg": "застрелен шерифом",
+    "nightActivity": "НОЧНАЯ АКТИВНОСТЬ",
+    "nightActed": "✓ готово",
+    "nightWaiting": "⏳ ожидание",
+    "nightAllReady": "Все сделали ход — ждите рассвета…",
+    "closeLobby": "ЗАКРЫТЬ ЛОББИ",
+    "closingLobby": "ЗАКРЫВАЕТСЯ…",
+    "endGame": "ЗАВЕРШИТЬ ИГРУ",
+    "gameCancelled": "Игра завершена хостом"
   },
   "mafiaLobby": {
     "back": "← НАЗАД",

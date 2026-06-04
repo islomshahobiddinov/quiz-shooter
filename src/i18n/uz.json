@@ -151,7 +151,15 @@
     "sheriffShoot": "OTISH",
     "whoToShoot": "Kimni otmoqchisiz?",
     "shot": "✓ Otildi. Natija erta tong ko'rinadi.",
-    "sheriffKilledMsg": "sheriff tomonidan otildi"
+    "sheriffKilledMsg": "sheriff tomonidan otildi",
+    "nightActivity": "TUN FAOLLIGI",
+    "nightActed": "✓ tayyor",
+    "nightWaiting": "⏳ kutilmoqda",
+    "nightAllReady": "Barcha harakat qildi — tong otishini kuting…",
+    "closeLobby": "LOBBYNI TUGATISH",
+    "closingLobby": "TUGATILYAPDI…",
+    "endGame": "O'YINNI TUGATISH",
+    "gameCancelled": "O'yin host tomonidan tugatildi"
   },
   "mafiaLobby": {
     "back": "← ORQAGA",
