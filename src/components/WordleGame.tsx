@@ -59,7 +59,8 @@ export function WordleGame() {
   const doShake = () => { setShake(true); setTimeout(() => setShake(false), 500) }
 
   const submitGuess = useCallback(() => {
-    if (current.length !== WORD_LEN || status !== 'playing') return
+    if (status !== 'playing') return
+    if (current.length !== WORD_LEN) { doShake(); return }
     const ev = evaluate(current, target.word)
     const row = guesses.length
     setFlip(row)
