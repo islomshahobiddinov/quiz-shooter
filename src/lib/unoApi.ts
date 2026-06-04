@@ -82,7 +82,7 @@ export async function joinUnoLobby(
   const takenSeats = (existing ?? []).map((p: { seat: number }) => p.seat)
   let seat = 0
   while (takenSeats.includes(seat)) seat++
-  if (seat >= 4) throw new Error('Lobby to\'lgan (max 4 o\'yinchi)')
+  if (seat >= 10) throw new Error('Lobby to\'lgan (max 10 o\'yinchi)')
 
   const { data, error } = await supabase
     .from('uno_players')

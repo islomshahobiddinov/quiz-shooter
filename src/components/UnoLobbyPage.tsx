@@ -89,7 +89,7 @@ export function UnoLobbyPage({ playerId, defaultUsername, onStarted }: Props) {
         </div>
 
         <div className="uno-players-list">
-          <h3 className="uno-players-title">O'yinchilar ({players.length}/4)</h3>
+          <h3 className="uno-players-title">O'yinchilar ({players.length}/10)</h3>
           {players.map(p => (
             <div key={p.id} className={`uno-player-row${p.player_id === playerId ? ' is-me' : ''}`}>
               <span className="uno-player-seat">#{p.seat + 1}</span>
@@ -123,7 +123,7 @@ export function UnoLobbyPage({ playerId, defaultUsername, onStarted }: Props) {
     return (
       <div className="uno-lobby-page">
         <h1 className="uno-lobby-title">UNO</h1>
-        <p className="uno-lobby-subtitle">2–4 o'yinchi bilan real vaqtli UNO o'yini</p>
+        <p className="uno-lobby-subtitle">2–10 o'yinchi bilan real vaqtli UNO o'yini</p>
         <div className="uno-lobby-actions">
           <button type="button" className="mafia-btn mafia-btn--primary" onClick={() => setMode('creating')}>
             Lobby yaratish

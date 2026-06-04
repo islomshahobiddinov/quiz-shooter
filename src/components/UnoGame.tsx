@@ -82,10 +82,12 @@ export function UnoGame({ initialLobby, players, myPlayer, onExit }: Props) {
 
   const topCard = gs.discard[gs.discard.length - 1]
 
-  // Sort opponents to show them around the table: others except me
   const opponents = players.filter(p => p.seat !== mySeat).sort((a, b) => a.seat - b.seat)
-
   const colorMap: Record<CardColor, string> = COLOR_BG
+
+  const currentPlayerName = gs.currentSeat === mySeat
+    ? 'Siz'
+    : (players.find(p => p.seat === gs.currentSeat)?.username ?? `O'yinchi ${gs.currentSeat + 1}`)
 
   return (
     <div className="uno-game">
@@ -95,6 +97,19 @@ export function UnoGame({ initialLobby, players, myPlayer, onExit }: Props) {
         <h1 className="uno-title">UNO</h1>
         {gs.message && <span className="uno-msg">{gs.message}</span>}
       </div>
+
+      {/* Turn indicator */}
+      {gs.phase !== 'finished' && (
+        <div className={`uno-turn-bar${isMyTurn ? ' uno-turn-bar--mine' : ''}`}>
+          <span className="uno-turn-arrow">▶</span>
+          <span className="uno-turn-name">
+            {isMyTurn ? 'Sizning navbatingiz' : `${currentPlayerName} navbati`}
+          </span>
+          <span className="uno-turn-dir">
+            {gs.direction === 1 ? '↻ Soat yo\'nalishi' : '↺ Teskari'}
+          </span>
+        </div>
+      )}
 
       {/* Game over banner */}
       {gs.phase === 'finished' && (
@@ -114,6 +129,7 @@ export function UnoGame({ initialLobby, players, myPlayer, onExit }: Props) {
           return (
             <div key={op.seat} className={`uno-opponent${isActive ? ' is-active' : ''}`}>
               <div className="uno-op-name">
+                {isActive && <span className="uno-op-turn-dot" />}
                 {op.username}
                 {hand.length === 1 && <span className="uno-uno-tag">UNO!</span>}
               </div>
