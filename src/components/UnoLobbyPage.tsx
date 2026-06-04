@@ -71,7 +71,7 @@ export function UnoLobbyPage({ playerId, defaultUsername, onStarted }: Props) {
     setBusy(true); setErr('')
     try {
       await startUnoGame(lobby.id)
-      onStarted(lobby, player!)
+      // onStarted is called via subscribeToUnoLobby for all players (including host)
     } catch (e) { setErr(e instanceof Error ? e.message : 'Xatolik') }
     finally { setBusy(false) }
   }

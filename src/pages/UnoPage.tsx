@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { getOrCreatePlayerId, saveUnoSession, loadUnoSession, clearUnoSession } from '../lib/unoSession'
-import { getUnoLobby, listUnoPlayers, subscribeToUnoLobby } from '../lib/unoApi'
+import { getUnoLobby, listUnoPlayers } from '../lib/unoApi'
 import type { UnoLobby, UnoPlayer } from '../lib/unoApi'
 import { UnoLobbyPage } from '../components/UnoLobbyPage'
 import { UnoGame } from '../components/UnoGame'
@@ -32,20 +32,14 @@ export function UnoPage({ userLabel }: Props) {
     return () => { cancelled = true }
   }, [])
 
-  // When in lobby waiting room, also watch for game start
-  useEffect(() => {
-    if (!lobby || view === 'game') return
-    const unsub = subscribeToUnoLobby(lobby.id, updated => {
-      setLobby(updated)
-      if (updated.status === 'playing') setView('game')
-    })
-    return unsub
-  }, [lobby?.id, view])
-
-  const handleStarted = (l: UnoLobby, p: UnoPlayer) => {
+  const handleStarted = async (l: UnoLobby, p: UnoPlayer) => {
     saveUnoSession({ lobbyId: l.id, playerId, username: p.username, isHost: p.seat === 0, seat: p.seat })
-    setLobby(l); setMyPlayer(p)
-    listUnoPlayers(l.id).then(setPlayers)
+    setLobby(l)
+    setMyPlayer(p)
+    try {
+      const ps = await listUnoPlayers(l.id)
+      setPlayers(ps)
+    } catch { /* game still starts, opponents show without names */ }
     setView('game')
   }
 
