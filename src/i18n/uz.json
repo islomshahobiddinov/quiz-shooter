@@ -331,6 +331,13 @@
     "doctor": "DOKTOR",
     "sheriff": "SHERIFF"
   },
+  "home": {
+    "battleDesc": "Jamoalar bilan savol-javob jangi",
+    "mafiaDesc": "Tungi sir: kim mafia?",
+    "tttDesc": "Klassik X va O o'yini",
+    "checkersDesc": "Shashka taxtasida bellashing",
+    "myQuizzesDesc": "O'zingizning testlarni yarating"
+  },
   "lang": {
     "uz": "UZ",
     "ru": "RU"

@@ -4,13 +4,235 @@
   background: #0a0e1a;
 }
 
+/* ── HOME PAGE ──────────────────────────────────────────────── */
+
+.home-page {
+  background: #0a0e1a;
+  color: #7fffd4;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Courier New', monospace;
+  min-height: 100svh;
+}
+
+.home-header {
+  align-items: center;
+  border-bottom: 1px solid rgba(127, 255, 212, 0.15);
+  display: flex;
+  justify-content: space-between;
+  padding: 18px 32px;
+  flex-shrink: 0;
+}
+
+.home-brand {
+  color: #7fffd4;
+  font-family: 'Courier New', monospace;
+  font-size: 16px;
+  font-weight: bold;
+  letter-spacing: 3px;
+  text-shadow: 0 0 14px #00fff7;
+}
+
+.home-header-right {
+  align-items: center;
+  display: flex;
+  gap: 16px;
+}
+
+.home-lang-switcher {
+  display: flex;
+  gap: 6px;
+}
+
+.home-user-row {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+}
+
+.home-user-name {
+  color: #c7d7ff;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.home-signout-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 75, 104, 0.5);
+  color: #ff8aa0;
+  cursor: pointer;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+  padding: 6px 12px;
+  transition: background 0.15s;
+}
+
+.home-signout-btn:hover {
+  background: rgba(255, 75, 104, 0.1);
+}
+
+.home-signin-btn {
+  align-items: center;
+  background: rgba(127, 255, 212, 0.07);
+  border: 1px solid rgba(127, 255, 212, 0.45);
+  color: #7fffd4;
+  cursor: pointer;
+  display: flex;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  gap: 7px;
+  letter-spacing: 1px;
+  padding: 8px 14px;
+  transition: background 0.15s;
+}
+
+.home-signin-btn:hover {
+  background: rgba(127, 255, 212, 0.14);
+}
+
+.home-main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 28px 24px 40px;
+}
+
+.games-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(4, 1fr);
+  margin: 0 auto;
+  max-width: 1100px;
+}
+
+.game-card {
+  background: var(--card-bg);
+  border: 1.5px solid var(--card-border);
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.game-card:hover {
+  border-color: var(--card-color);
+  box-shadow: 0 0 28px color-mix(in srgb, var(--card-color) 20%, transparent);
+  transform: translateY(-3px);
+}
+
+.game-card-image {
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid var(--card-border);
+  height: 110px;
+  overflow: hidden;
+}
+
+.game-card-svg {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.game-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px 16px;
+}
+
+.game-card-title {
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  margin: 0;
+  text-shadow: 0 0 10px currentColor;
+}
+
+.game-card-desc {
+  color: #8aa1c5;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  flex: 1;
+  letter-spacing: 0.5px;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.game-card-play {
+  color: var(--card-color);
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  margin-top: 2px;
+  opacity: 0.8;
+}
+
+.game-card:hover .game-card-play {
+  opacity: 1;
+}
+
+.game-card--quizzes {
+  flex-direction: column;
+}
+
+@media (max-width: 900px) {
+  .games-grid {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 620px;
+  }
+}
+
+@media (max-width: 540px) {
+  .home-header {
+    padding: 12px 14px;
+  }
+
+  .home-main {
+    padding: 20px 14px 32px;
+  }
+
+  .games-grid {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 100%;
+  }
+
+  .game-card-image {
+    height: 90px;
+  }
+
+  .home-user-name {
+    display: none;
+  }
+}
+
+@media (max-width: 380px) {
+  .home-header-right {
+    gap: 8px;
+  }
+
+  .home-lang-switcher {
+    display: none;
+  }
+}
+
+/* ── END HOME PAGE ──────────────────────────────────────────── */
+
 .edu-mars {
   min-height: 100svh;
   background: #0a0e1a;
   color: #7fffd4;
   cursor: auto;
   font-family: 'Courier New', monospace;
-  overflow: hidden;
+  overflow-x: hidden;
 }
 
 .edu-mars.is-playing {

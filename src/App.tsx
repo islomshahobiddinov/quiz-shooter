@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { useAuth } from './lib/useAuth'
-import { Sidebar } from './components/Sidebar'
+import { HomePage } from './pages/HomePage'
 import { MafiaGame } from './components/MafiaGame'
 import type { MafiaLobby, MafiaPlayer } from './lib/mafiaApi'
 import { getMafiaLobby } from './lib/mafiaApi'
@@ -236,75 +236,80 @@ function App() {
     )
   }
 
+  const gameRoutes = (content: React.ReactNode) => (
+    <section className="topic-menu is-visible">
+      <div className="topic-menu-inner">{content}</div>
+    </section>
+  )
+
   return (
     <main className="edu-mars">
-      <section className="topic-menu is-visible has-sidebar">
-        <Sidebar
-          user={user}
-          userLabel={userLabel}
-          onSignIn={signInWithGoogle}
-          onSignOut={signOut}
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <HomePage
+              user={user}
+              userLabel={userLabel}
+              onSignIn={signInWithGoogle}
+              onSignOut={signOut}
+            />
+          }
         />
-        <div className="topic-menu-inner">
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <BattlePage
-                  userLabel={userLabel}
-                  userId={user?.id ?? 'anon'}
-                  onCreated={handleBattleCreated}
-                  onJoined={handleBattleJoined}
-                />
-              }
+        <Route
+          path="/battle"
+          element={gameRoutes(
+            <BattlePage
+              userLabel={userLabel}
+              userId={user?.id ?? 'anon'}
+              onCreated={handleBattleCreated}
+              onJoined={handleBattleJoined}
             />
-            <Route
-              path="/mafia"
-              element={
-                <MafiaPage
-                  user={user}
-                  userLabel={userLabel}
-                  onCreated={handleMafiaCreated}
-                  onJoined={handleMafiaJoined}
-                />
-              }
+          )}
+        />
+        <Route
+          path="/mafia"
+          element={gameRoutes(
+            <MafiaPage
+              user={user}
+              userLabel={userLabel}
+              onCreated={handleMafiaCreated}
+              onJoined={handleMafiaJoined}
             />
-            <Route
-              path="/my-quizzes"
-              element={
-                user ? (
-                  <MyQuizzesPage user={user} userLabel={userLabel} />
-                ) : (
-                  <Navigate to="/" replace />
-                )
-              }
+          )}
+        />
+        <Route
+          path="/my-quizzes"
+          element={
+            user
+              ? gameRoutes(<MyQuizzesPage user={user} userLabel={userLabel} />)
+              : <Navigate to="/" replace />
+          }
+        />
+        <Route
+          path="/tictactoe"
+          element={gameRoutes(
+            <TicTacToePage
+              userLabel={userLabel}
+              onCreated={handleTttCreated}
+              onJoined={handleTttJoined}
+              onBotGame={handleBotGame}
             />
-            <Route
-              path="/tictactoe"
-              element={
-                <TicTacToePage
-                  userLabel={userLabel}
-                  onCreated={handleTttCreated}
-                  onJoined={handleTttJoined}
-                  onBotGame={handleBotGame}
-                />
-              }
+          )}
+        />
+        <Route
+          path="/checkers"
+          element={gameRoutes(
+            <CheckersPage
+              userLabel={userLabel}
+              onCreated={handleCheckersCreated}
+              onJoined={handleCheckersJoined}
+              onBotGame={handleCheckersBotGame}
             />
-            <Route
-              path="/checkers"
-              element={
-                <CheckersPage
-                  userLabel={userLabel}
-                  onCreated={handleCheckersCreated}
-                  onJoined={handleCheckersJoined}
-                  onBotGame={handleCheckersBotGame}
-                />
-              }
-            />
-            <Route path="*" element={<NotFoundPage />} />
-          </Routes>
-        </div>
-      </section>
+          )}
+        />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
     </main>
   )
 }
