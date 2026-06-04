@@ -1,10 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   createUnoLobby, findUnoLobbyByCode, joinUnoLobby,
-  startUnoGame, subscribeToUnoPlayers,
+  startUnoGame, subscribeToUnoPlayers, subscribeToUnoLobby,
 } from '../lib/unoApi'
 import type { UnoLobby, UnoPlayer } from '../lib/unoApi'
-import { useEffect } from 'react'
 
 type Mode = 'idle' | 'creating' | 'joining' | 'waiting'
 
@@ -24,11 +23,24 @@ export function UnoLobbyPage({ playerId, defaultUsername, onStarted }: Props) {
   const [player, setPlayer] = useState<UnoPlayer | null>(null)
   const [players, setPlayers] = useState<UnoPlayer[]>([])
 
+  // Players subscription
   useEffect(() => {
     if (!lobby) return
     const unsub = subscribeToUnoPlayers(lobby.id, setPlayers)
     return unsub
   }, [lobby?.id])
+
+  // Lobby status subscription — non-host players detect game start here
+  useEffect(() => {
+    if (!lobby || !player) return
+    const unsub = subscribeToUnoLobby(lobby.id, (updated) => {
+      setLobby(updated)
+      if (updated.status === 'playing') {
+        onStarted(updated, player)
+      }
+    })
+    return unsub
+  }, [lobby?.id, player?.id])
 
   const handleCreate = async () => {
     if (!username.trim()) { setErr('Ism kiriting'); return }
