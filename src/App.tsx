@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
 import { useAuth } from './lib/useAuth'
 import { HomePage } from './pages/HomePage'
 import { MafiaGame } from './components/MafiaGame'
@@ -54,6 +54,8 @@ function App() {
 
   // Battle state
   const [activeBattleLobby, setActiveBattleLobby] = useState<{ lobby: BattleLobby; player: BattlePlayer } | null>(null)
+
+  const navigate = useNavigate()
 
   // Restore Mafia session
   useEffect(() => {
@@ -238,7 +240,12 @@ function App() {
 
   const gameRoutes = (content: React.ReactNode) => (
     <section className="topic-menu is-visible">
-      <div className="topic-menu-inner">{content}</div>
+      <div className="topic-menu-inner">
+        <button type="button" className="home-back-btn" onClick={() => navigate('/')}>
+          ← Bosh sahifa
+        </button>
+        {content}
+      </div>
     </section>
   )
 
