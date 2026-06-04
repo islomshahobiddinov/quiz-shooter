@@ -31,6 +31,7 @@ import { CrosswordPage } from './pages/CrosswordPage'
 import { HangmanPage } from './pages/HangmanPage'
 import { MemoryPage } from './pages/MemoryPage'
 import { UnoPage } from './pages/UnoPage'
+import { WordlePage } from './pages/WordlePage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import './App.css'
 
@@ -334,6 +335,10 @@ function App() {
         <Route
           path="/uno"
           element={gameRoutes(<UnoPage userLabel={userLabel} />)}
+        />
+        <Route
+          path="/wordle"
+          element={gameRoutes(<WordlePage />)}
         />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

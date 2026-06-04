@@ -125,6 +125,41 @@ function CheckersSvg() {
   )
 }
 
+function WordleSvg() {
+  const colors = ['#16a34a','#d97706','#374151','#16a34a','#374151']
+  const letters = ['W','O','R','D','L']
+  return (
+    <svg viewBox="0 0 280 150" fill="none" aria-hidden="true" className="game-card-svg">
+      <ellipse cx="140" cy="75" rx="100" ry="58" fill="rgba(34,197,94,0.05)" />
+      {/* 3 rows of 5 cells */}
+      {[0,1,2].map(row =>
+        [0,1,2,3,4].map(col => {
+          const x = 54 + col * 38
+          const y = 20 + row * 40
+          const isTopRow = row === 0
+          const bg = isTopRow ? colors[col] : 'rgba(127,255,212,0.04)'
+          const border = isTopRow ? colors[col] : 'rgba(127,255,212,0.18)'
+          return (
+            <g key={`${row}-${col}`}>
+              <rect x={x} y={y} width="32" height="32" rx="4"
+                fill={bg} stroke={border} strokeWidth="1.5" />
+              {isTopRow && (
+                <text x={x+16} y={y+22} textAnchor="middle"
+                  fontSize="14" fontWeight="bold"
+                  fontFamily="'Courier New',monospace" fill="white">
+                  {letters[col]}
+                </text>
+              )}
+            </g>
+          )
+        })
+      )}
+      <circle cx="36"  cy="130" r="2"   fill="rgba(34,197,94,0.35)" />
+      <circle cx="248" cy="20"  r="1.5" fill="rgba(34,197,94,0.3)"  />
+    </svg>
+  )
+}
+
 function UnoSvg() {
   return (
     <svg viewBox="0 0 280 150" fill="none" aria-hidden="true" className="game-card-svg">
@@ -328,6 +363,16 @@ const GAMES = [
     border: 'rgba(251,146,60,0.45)',
     bg: 'rgba(251,146,60,0.07)',
     svg: <CheckersSvg />,
+  },
+  {
+    key: 'wordle',
+    titleKey: 'nav.wordle',
+    descKey: 'home.wordleDesc',
+    route: '/wordle',
+    color: '#22c55e',
+    border: 'rgba(34,197,94,0.45)',
+    bg: 'rgba(34,197,94,0.07)',
+    svg: <WordleSvg />,
   },
   {
     key: 'uno',
