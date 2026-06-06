@@ -30,6 +30,9 @@ create table public.mafia_players (
 alter publication supabase_realtime add table public.mafia_lobbies;
 alter publication supabase_realtime add table public.mafia_players;
 
+-- Required for realtime DELETE events with filters to work correctly
+alter table public.mafia_players replica identity full;
+
 -- RLS
 alter table public.mafia_lobbies enable row level security;
 alter table public.mafia_players enable row level security;

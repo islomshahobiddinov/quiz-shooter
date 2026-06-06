@@ -117,6 +117,12 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
     return () => { unsubLobby(); unsubPlayers() }
   }, [lobby.id])
 
+  // Detect kick: exit if player is removed from the list
+  useEffect(() => {
+    if (players.length === 0) return
+    if (!players.find((p) => p.id === myPlayer.id)) onExit()
+  }, [players, myPlayer.id, onExit])
+
   // Reset per-round flags on phase change
   useEffect(() => {
     if (lobby.phase === 'night') {
@@ -621,9 +627,9 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
                 type="button"
                 className="mafia-btn mafia-btn--primary"
                 onClick={handleResolveVote}
-                disabled={busy || !allVoted}
+                disabled={busy}
               >
-                {allVoted ? t('mafia.finalizeVotes') : `${t('mafia.waitingVotes')} (${voteCount}/${aliveCount})`}
+                {t('mafia.finalizeVotes')} ({voteCount}/{aliveCount})
               </button>
               <button type="button" className="mafia-exit-btn mafia-exit-btn--danger" onClick={handleCloseLobby} disabled={busy}>
                 {busy ? t('mafia.closingLobby') : t('mafia.endGame')}
