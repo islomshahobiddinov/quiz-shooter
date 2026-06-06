@@ -119,7 +119,7 @@ export async function listMafiaPlayers(lobbyId: string): Promise<MafiaPlayer[]> 
 
 function assignRoles(count: number): MafiaRole[] {
   const roles: MafiaRole[] = []
-  const mafiaCount = count <= 5 ? 1 : count <= 8 ? 2 : 3
+  const mafiaCount = count <= 6 ? 1 : 2
   for (let i = 0; i < mafiaCount; i++) roles.push('mafia')
   roles.push('doctor')
   if (count >= 5) roles.push('sheriff')
