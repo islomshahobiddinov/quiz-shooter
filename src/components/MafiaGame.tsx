@@ -159,7 +159,6 @@ export function MafiaGame({ lobby: initialLobby, player: myPlayer, onExit }: Pro
   const aliveCount = alivePlayers.length
 
   const voteCount = Object.keys(lobby.day_votes ?? {}).length
-  const allVoted = voteCount >= aliveCount && aliveCount > 0
 
   const handleStart = async () => {
     if (players.length < 4) { setErr(t('mafia.minPlayersError')); return }
