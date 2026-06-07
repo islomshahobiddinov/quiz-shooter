@@ -265,6 +265,31 @@ function HangmanSvg() {
   )
 }
 
+function WhiteboardSvg() {
+  return (
+    <svg viewBox="0 0 280 150" fill="none" aria-hidden="true" className="game-card-svg">
+      <ellipse cx="140" cy="75" rx="100" ry="58" fill="rgba(127,255,212,0.04)" />
+      <rect x="40" y="20" width="200" height="110" rx="6" fill="rgba(10,14,26,0.7)" stroke="rgba(127,255,212,0.35)" strokeWidth="1.5" />
+      {/* pen stroke wavy */}
+      <path d="M60 100 Q90 60 120 80 Q150 100 180 55 Q200 35 220 50" stroke="#7fffd4" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+      {/* second stroke */}
+      <path d="M60 120 Q100 110 140 115 Q180 120 220 108" stroke="rgba(127,255,212,0.4)" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+      {/* text lines */}
+      <line x1="60" y1="40" x2="130" y2="40" stroke="rgba(127,255,212,0.5)" strokeWidth="1.5" strokeLinecap="round" />
+      <line x1="60" y1="52" x2="110" y2="52" stroke="rgba(127,255,212,0.3)" strokeWidth="1.5" strokeLinecap="round" />
+      {/* color dots toolbar hint */}
+      <circle cx="62" cy="32" r="3" fill="#ff4455" />
+      <circle cx="72" cy="32" r="3" fill="#facc15" />
+      <circle cx="82" cy="32" r="3" fill="#60a5fa" />
+      <circle cx="92" cy="32" r="3" fill="#a78bfa" />
+      {/* pen icon */}
+      <path d="M210 80 l6-6 4 4 -10 10 -4-4z" stroke="#7fffd4" strokeWidth="1.2" fill="rgba(127,255,212,0.2)" />
+      <circle cx="32" cy="130" r="2" fill="rgba(127,255,212,0.3)" />
+      <circle cx="252" cy="22" r="1.5" fill="rgba(127,255,212,0.25)" />
+    </svg>
+  )
+}
+
 function CrosswordSvg() {
   return (
     <svg viewBox="0 0 280 150" fill="none" aria-hidden="true" className="game-card-svg">
@@ -413,6 +438,16 @@ const GAMES = [
     border: 'rgba(96,212,160,0.45)',
     bg: 'rgba(96,212,160,0.07)',
     svg: <CrosswordSvg />,
+  },
+  {
+    key: 'whiteboard',
+    titleKey: 'nav.whiteboard',
+    descKey: 'home.whiteboardDesc',
+    route: '/whiteboard',
+    color: '#7fffd4',
+    border: 'rgba(127,255,212,0.45)',
+    bg: 'rgba(127,255,212,0.07)',
+    svg: <WhiteboardSvg />,
   },
 ]
 

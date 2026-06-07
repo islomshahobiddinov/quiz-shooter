@@ -11,6 +11,7 @@
     "memory": "MEMORY MATCH",
     "hangman": "HANGMAN",
     "crossword": "KROSSVORD",
+    "whiteboard": "DOSKA",
     "signOut": "CHIQISH",
     "signIn": "GOOGLE BILAN KIRISH"
   },
@@ -354,7 +355,8 @@
     "unoDesc": "2-10 o'yinchi bilan real vaqtli UNO karta o'yini",
     "memoryDesc": "Termini va ta'rifini juftlashtir — xotirangni sinab ko'r",
     "hangmanDesc": "So'zni harfma-harf topib doriga osilishni to'xtat",
-    "crosswordDesc": "Dasturlash terminlari bilan krossvord yechish"
+    "crosswordDesc": "Dasturlash terminlari bilan krossvord yechish",
+    "whiteboardDesc": "Chizing, yozing — elektron doska"
   },
   "lang": {
     "uz": "UZ",

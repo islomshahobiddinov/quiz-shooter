@@ -4398,3 +4398,179 @@
   .wordle-kb-row { gap: 4px; }
   .wordle-row { gap: 5px; }
 }
+
+/* ── WHITEBOARD ──────────────────────────────────────────────── */
+
+.whiteboard-page {
+  background: #0a0e1a;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Courier New', monospace;
+  height: 100svh;
+  overflow: hidden;
+}
+
+.whiteboard-toolbar {
+  align-items: center;
+  background: rgba(10, 14, 26, 0.97);
+  border-bottom: 1px solid rgba(127, 255, 212, 0.15);
+  display: flex;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 14px;
+  z-index: 10;
+}
+
+.wb-back-btn {
+  background: transparent;
+  border: 1px solid rgba(127, 255, 212, 0.3);
+  color: #7fffd4;
+  cursor: pointer;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+  padding: 5px 11px;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.wb-back-btn:hover {
+  background: rgba(127, 255, 212, 0.08);
+}
+
+.wb-divider {
+  background: rgba(127, 255, 212, 0.12);
+  height: 28px;
+  width: 1px;
+}
+
+.wb-section {
+  align-items: center;
+  display: flex;
+  gap: 4px;
+}
+
+.wb-tool-btn {
+  align-items: center;
+  background: rgba(127, 255, 212, 0.04);
+  border: 1px solid rgba(127, 255, 212, 0.18);
+  color: #8aa1c5;
+  cursor: pointer;
+  display: flex;
+  height: 32px;
+  justify-content: center;
+  padding: 0 8px;
+  transition: all 0.15s;
+}
+
+.wb-tool-btn.is-active {
+  background: rgba(127, 255, 212, 0.14);
+  border-color: rgba(127, 255, 212, 0.55);
+  color: #7fffd4;
+}
+
+.wb-tool-btn:hover:not(.is-active) {
+  border-color: rgba(127, 255, 212, 0.35);
+  color: #7fffd4;
+}
+
+.wb-colors {
+  flex-wrap: wrap;
+}
+
+.wb-color-btn {
+  border: 2px solid transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  height: 20px;
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  padding: 0;
+  transition: outline-color 0.12s, transform 0.12s;
+  width: 20px;
+}
+
+.wb-color-btn:hover {
+  transform: scale(1.2);
+}
+
+.wb-color-btn.is-active {
+  outline-color: #7fffd4;
+  transform: scale(1.15);
+}
+
+.wb-size-btn {
+  align-items: center;
+  background: rgba(127, 255, 212, 0.04);
+  border: 1px solid rgba(127, 255, 212, 0.18);
+  color: #7fffd4;
+  cursor: pointer;
+  display: flex;
+  height: 32px;
+  justify-content: center;
+  padding: 0;
+  transition: border-color 0.15s, background 0.15s;
+  width: 32px;
+}
+
+.wb-size-btn.is-active {
+  background: rgba(127, 255, 212, 0.12);
+  border-color: rgba(127, 255, 212, 0.55);
+}
+
+.wb-size-btn:hover:not(.is-active) {
+  border-color: rgba(127, 255, 212, 0.35);
+}
+
+.wb-size-dot {
+  background: currentColor;
+  border-radius: 50%;
+  display: block;
+  min-height: 2px;
+  min-width: 2px;
+}
+
+.wb-clear-btn {
+  background: rgba(255, 68, 85, 0.07);
+  border: 1px solid rgba(255, 68, 85, 0.4);
+  color: #ff8aa0;
+  cursor: pointer;
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  padding: 5px 11px;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.wb-clear-btn:hover {
+  background: rgba(255, 68, 85, 0.15);
+}
+
+.whiteboard-canvas-wrap {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.whiteboard-canvas {
+  display: block;
+  height: 100%;
+  touch-action: none;
+  width: 100%;
+}
+
+.wb-text-input {
+  background: transparent;
+  border: none;
+  border-bottom: 1px dashed rgba(127, 255, 212, 0.5);
+  font-family: 'Courier New', monospace;
+  min-width: 60px;
+  outline: none;
+  padding: 0 2px;
+  position: absolute;
+  width: 260px;
+}
+
+/* ── END WHITEBOARD ──────────────────────────────────────────── */

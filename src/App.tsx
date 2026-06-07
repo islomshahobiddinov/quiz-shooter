@@ -32,6 +32,7 @@ import { HangmanPage } from './pages/HangmanPage'
 import { MemoryPage } from './pages/MemoryPage'
 import { UnoPage } from './pages/UnoPage'
 import { WordlePage } from './pages/WordlePage'
+import { WhiteboardPage } from './pages/WhiteboardPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import './App.css'
 
@@ -339,6 +340,10 @@ function App() {
         <Route
           path="/wordle"
           element={gameRoutes(<WordlePage />)}
+        />
+        <Route
+          path="/whiteboard"
+          element={<WhiteboardPage />}
         />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
